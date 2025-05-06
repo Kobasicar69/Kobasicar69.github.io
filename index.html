@@ -123,18 +123,21 @@
 
   // Auto-scroll function
   function autoScroll() {
-    if (!document.hasFocus()) {
-      requestAnimationFrame(autoScroll);
-      return;
-    }
-    if (isAutoScrolling) {
-      window.scrollBy(0, dir * 0.5);
-      const maxY = document.body.scrollHeight - window.innerHeight;
-      if (window.scrollY >= maxY) dir = -1;
-      if (window.scrollY <= 0) dir = 1;
-    }
+  if (!document.hasFocus()) {
     requestAnimationFrame(autoScroll);
+    return;
   }
+  if (isAutoScrolling) {
+    window.scrollBy(0, dir * 0.5);
+    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 2) {
+      dir = -1;
+    } else if (window.scrollY <= 2) {
+      dir = 1;
+    }
+  }
+  requestAnimationFrame(autoScroll);
+}
+
   requestAnimationFrame(autoScroll);
 
   // Load and render gallery
