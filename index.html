@@ -58,38 +58,23 @@
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     }
 
-    .media-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-
-      /* disable drag “ghost” on images */
+    .media-card img,
+    .media-card video {
+      /* disable the ghost‑drag image in WebKit/Gecko */
       -webkit-user-drag: none;
       -khtml-user-drag: none;
       -moz-user-drag: none;
 
-      /* prevent iOS long‑press menu */
+      /* prevent touch callout on iOS */
       -webkit-touch-callout: none;
 
-      /* disable HTML5 dragstart */
+      /* prevent text selection */
       user-select: none;
+
+      /* let pointer‑events pass through so your JS click still works */
       pointer-events: none;
-      /* images don’t need pointer events */
     }
 
-    .media-card video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-
-      /* disable drag “ghost” on video element only */
-      -webkit-user-drag: none;
-      -khtml-user-drag: none;
-      -moz-user-drag: none;
-
-      /* restore pointer events so controls & fullscreen click still work */
-      pointer-events: auto;
-    }
 
     #fullscreenViewer {
       display: none;
