@@ -122,22 +122,34 @@
   }, 1000);
 
   // Auto-scroll function
+
   function autoScroll() {
-  if (!document.hasFocus()) {
-    requestAnimationFrame(autoScroll);
-    return;
-  }
-  if (isAutoScrolling) {
+    // Only scroll if the window has focus
+    if (!document.hasFocus()) {
+      requestAnimationFrame(autoScroll);
+      return;
+    }
+
+    // Scroll by 0.5 pixels in the current direction
     window.scrollBy(0, dir * 0.5);
-    if (window.scrollY + window.innerHeight >= document.body.scrollHeight - 2) {
+
+    // Calculate the maximum scroll position (bottom of the page)
+    const maxY = document.body.scrollHeight - window.innerHeight;
+
+    // Reverse direction at the bottom
+    if (window.scrollY >= maxY) {
       dir = -1;
-    } else if (window.scrollY <= 2) {
+    }
+    // Reverse direction at the top
+    if (window.scrollY <= 0) {
       dir = 1;
     }
-  }
-  requestAnimationFrame(autoScroll);
-}
 
+    // Continue the animation
+    requestAnimationFrame(autoScroll);
+  }
+
+  // Start the auto-scrolling
   requestAnimationFrame(autoScroll);
 
   // Load and render gallery
