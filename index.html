@@ -58,23 +58,12 @@
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     }
 
-    .media-card img,
-    .media-card video {
-      /* disable the ghost‑drag image in WebKit/Gecko */
-      -webkit-user-drag: none;
-      -khtml-user-drag: none;
-      -moz-user-drag: none;
-
-      /* prevent touch callout on iOS */
-      -webkit-touch-callout: none;
-
-      /* prevent text selection */
-      user-select: none;
-
-      /* let pointer‑events pass through so your JS click still works */
-      pointer-events: none;
+    .media-card video,
+    .media-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
-
 
     #fullscreenViewer {
       display: none;
@@ -236,11 +225,6 @@
       document.body.addEventListener('click', enableSound, { once: true });
       document.body.addEventListener('pointerdown', enableSound, { once: true });
     });
-
-    document.addEventListener('contextmenu', e => {
-      if (e.target.closest('.media-card')) e.preventDefault();
-    });
-
   </script>
 </body>
 
