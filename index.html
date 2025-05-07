@@ -63,11 +63,19 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      pointer-events: none;
-      /* Prevent direct interaction with media */
+      pointer-events: auto; /* Ensure interactions work */
     }
 
-    /* fullscreen viewer */
+    /* Prevent callout and selection */
+    img, video {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Fullscreen viewer */
     #fullscreenViewer {
       display: none;
       position: fixed;
@@ -95,11 +103,10 @@
       max-width: 90vw;
       max-height: 90vh;
       border-radius: 10px;
-      pointer-events: none;
-      /* Prevent direct interaction with media */
+      pointer-events: auto; /* Ensure interactions work */
     }
 
-    /* overlay for starting music & gallery */
+    /* Overlay for starting music & gallery */
     #startOverlay {
       position: fixed;
       top: 0;
@@ -144,7 +151,7 @@
     let isAutoScrolling = false;
     let dir = 1;
 
-    // auto-scroll on idle
+    // Auto-scroll on idle
     ['mousemove', 'mousedown', 'touchstart', 'keydown', 'wheel'].forEach(evt => {
       document.addEventListener(evt, () => {
         lastInteractionTime = Date.now();
@@ -167,7 +174,7 @@
     }
     requestAnimationFrame(autoScroll);
 
-    // gallery loader
+    // Gallery loader
     async function fetchPublicMedia() {
       const res = await fetch('media/manifest.json');
       const list = await res.json();
@@ -180,29 +187,33 @@
         if (m.type === 'image') {
           const img = document.createElement('img');
           img.src = m.path;
-          img.draggable = false; // Prevent dragging
+          img.draggable = false;
           card.appendChild(img);
         } else {
           const vid = document.createElement('video');
-          vid.controls = true;
           vid.muted = true;
+          vid.controls = true; // Enable controls in grid
           vid.setAttribute('controlsList', 'nodownload');
-          vid.draggable = false; // Prevent dragging
+          vid.draggable = false;
           const src = document.createElement('source');
           src.src = m.path;
           src.type = 'video/mp4';
           vid.appendChild(src);
           card.appendChild(vid);
         }
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (event) => {
+          // Prevent fullscreen if clicking video controls
+          if (event.target.tagName === 'VIDEO' && event.target === event.currentTarget.querySelector('video')) {
+            return; // Let video controls handle the click
+          }
           document.querySelectorAll('.media-card video').forEach(v => v.pause());
           const viewer = document.getElementById('fullscreenViewer'),
-            content = document.getElementById('fullscreenContent');
+                content = document.getElementById('fullscreenContent');
           content.innerHTML = '';
           if (m.type === 'image') {
             const img = document.createElement('img');
             img.src = m.path;
-            img.draggable = false; // Prevent dragging in fullscreen
+            img.draggable = false;
             content.appendChild(img);
           } else {
             const v2 = document.createElement('video');
@@ -211,7 +222,7 @@
             v2.autoplay = true;
             v2.muted = false;
             v2.setAttribute('controlsList', 'nodownload');
-            v2.draggable = false; // Prevent dragging in fullscreen
+            v2.draggable = false;
             content.appendChild(v2);
           }
           viewer.style.display = 'flex';
@@ -227,7 +238,7 @@
 
     // START OVERLAY logic
     const overlay = document.getElementById('startOverlay'),
-      music = document.getElementById('backgroundMusic');
+          music = document.getElementById('backgroundMusic');
     overlay.addEventListener('click', function onStart() {
       overlay.remove();
       music.play().catch(e => console.warn('play failed:', e));
@@ -241,13 +252,6 @@
         event.preventDefault();
       }
     });
-
-    // Disable long-press on mobile for images and videos
-    document.addEventListener('touchstart', event => {
-      if (event.target.tagName === 'IMG' || event.target.tagName === 'VIDEO') {
-        event.preventDefault();
-      }
-    }, { passive: false });
   </script>
 </body>
 
