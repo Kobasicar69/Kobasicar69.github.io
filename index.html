@@ -117,7 +117,7 @@
     <span>×</span>
     <div id="fullscreenContent"></div>
   </div>
-  <audio id="backgroundMusic" src="media/background.mp3" muted loop></audio>
+  <audio id="backgroundMusic" src="media/background.mp3" loop></audio>
   <div id="soundPrompt">🔊 Click or tap anywhere to enable sound</div>
 
   <script>
@@ -214,17 +214,18 @@
       prompt.style.display = 'block';
       /*setTimeout(() => music.play().catch((err) => { console.log('Play promise rejected:', err); }), 500);*/
 
-      function enableSound(e) {
-    console.log('User interaction event:', e.type);
-    if (music.muted) {
-      music.muted = false;
-      // reload the audio in case mobile needs it
-      music.load();
-      music.play()
-        .then(() => console.log('Music play succeeded'))
-        .catch(err => console.error('Music play failed', err));
-    }
+  function enableSound(e) {
+    // hide the prompt
     prompt.style.display = 'none';
+
+    // now play the music—this is a direct user gesture
+    music.play().then(() => {
+      console.log('🔊 Music is playing');
+    }).catch(err => {
+      console.error('🔊 play() failed even after gesture:', err);
+    });
+
+    // mark interaction so auto‑scroll can start
     hasInteracted = true;
   }
       
