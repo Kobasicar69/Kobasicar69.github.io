@@ -63,6 +63,8 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      pointer-events: none;
+      /* Prevent direct interaction with media */
     }
 
     /* fullscreen viewer */
@@ -93,6 +95,8 @@
       max-width: 90vw;
       max-height: 90vh;
       border-radius: 10px;
+      pointer-events: none;
+      /* Prevent direct interaction with media */
     }
 
     /* overlay for starting music & gallery */
@@ -175,13 +179,19 @@
         card.className = 'media-card';
         if (m.type === 'image') {
           const img = document.createElement('img');
-          img.src = m.path; card.appendChild(img);
+          img.src = m.path;
+          img.draggable = false; // Prevent dragging
+          card.appendChild(img);
         } else {
           const vid = document.createElement('video');
-          vid.controls = true; vid.muted = true;
+          vid.controls = true;
+          vid.muted = true;
           vid.setAttribute('controlsList', 'nodownload');
+          vid.draggable = false; // Prevent dragging
           const src = document.createElement('source');
-          src.src = m.path; src.type = 'video/mp4'; vid.appendChild(src);
+          src.src = m.path;
+          src.type = 'video/mp4';
+          vid.appendChild(src);
           card.appendChild(vid);
         }
         card.addEventListener('click', () => {
@@ -190,11 +200,18 @@
             content = document.getElementById('fullscreenContent');
           content.innerHTML = '';
           if (m.type === 'image') {
-            content.appendChild(Object.assign(document.createElement('img'), { src: m.path }));
+            const img = document.createElement('img');
+            img.src = m.path;
+            img.draggable = false; // Prevent dragging in fullscreen
+            content.appendChild(img);
           } else {
             const v2 = document.createElement('video');
-            v2.src = m.path; v2.controls = true; v2.autoplay = true; v2.muted = false;
+            v2.src = m.path;
+            v2.controls = true;
+            v2.autoplay = true;
+            v2.muted = false;
             v2.setAttribute('controlsList', 'nodownload');
+            v2.draggable = false; // Prevent dragging in fullscreen
             content.appendChild(v2);
           }
           viewer.style.display = 'flex';
@@ -217,6 +234,20 @@
       hasInteracted = true;
       fetchPublicMedia();
     }, { once: true });
+
+    // Disable right-click on images and videos
+    document.addEventListener('contextmenu', event => {
+      if (event.target.tagName === 'IMG' || event.target.tagName === 'VIDEO') {
+        event.preventDefault();
+      }
+    });
+
+    // Disable long-press on mobile for images and videos
+    document.addEventListener('touchstart', event => {
+      if (event.target.tagName === 'IMG' || event.target.tagName === 'VIDEO') {
+        event.preventDefault();
+      }
+    }, { passive: false });
   </script>
 </body>
 
