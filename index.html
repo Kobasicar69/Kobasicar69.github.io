@@ -214,17 +214,22 @@
       prompt.style.display = 'block';
       /*setTimeout(() => music.play().catch((err) => { console.log('Play promise rejected:', err); }), 500);*/
 
-      function enableSound() {
-        if (music.muted) {
-          music.muted = false;
-          music.play().catch(() => { });
-        }
-        prompt.style.display = 'none';
-        hasInteracted = true; // Enable auto-scrolling logic after first interaction
-      }
-      document.body.addEventListener('click', enableSound, { once: true });
+      function enableSound(e) {
+    console.log('User interaction event:', e.type);
+    if (music.muted) {
+      music.muted = false;
+      // reload the audio in case mobile needs it
+      music.load();
+      music.play()
+        .then(() => console.log('Music play succeeded'))
+        .catch(err => console.error('Music play failed', err));
+    }
+    prompt.style.display = 'none';
+    hasInteracted = true;
+  }
+      
       document.body.addEventListener('pointerdown', enableSound, { once: true });
-      document.body.addEventListener('touchstart', enableSound, { once: true });
+      document.body.addEventListener('click', enableSound, { once: true });
     });
   </script>
   <!-- include Eruda from CDN -->
