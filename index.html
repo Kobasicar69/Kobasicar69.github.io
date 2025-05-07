@@ -212,7 +212,7 @@
       const music = document.getElementById('backgroundMusic');
       const prompt = document.getElementById('soundPrompt');
       prompt.style.display = 'block';
-      setTimeout(() => music.play().catch(() => { console.log('Play promise rejected:', err); }), 500);
+      setTimeout(() => music.play().catch((err) => { console.log('Play promise rejected:', err); }), 500);
 
       function enableSound() {
         if (music.muted) {
