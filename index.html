@@ -1,244 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>IV‑4 Media Gallery</title>
   <style>
     :root {
-      --primary: #1a1a1a;
-      --accent: #ff4757;
-      --light: #ffffff;
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --primary: #1a1a1a; --accent: #ff4757; --light: #ffffff;
+      --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
     }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
-
-    body {
-      background: var(--primary);
-      color: var(--light);
-      overflow-x: hidden;
-    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+    body { background:var(--primary); color:var(--light); overflow-x:hidden; }
 
     .header {
-      padding: 2rem;
-      text-align: center;
-      background: rgba(0, 0, 0, 0.9);
-      backdrop-filter: blur(10px);
-      position: fixed;
-      width: 100%;
-      top: 0;
-      z-index: 100;
+      padding:2rem; text-align:center;
+      background:rgba(0,0,0,0.9); backdrop-filter:blur(10px);
+      position:fixed; top:0; width:100%; z-index:100;
     }
-
     .media-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 2rem;
-      padding: 8rem 2rem 2rem;
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+      gap:2rem; padding:8rem 2rem 2rem;
     }
-
     .media-card {
-      position: relative;
-      border-radius: 15px;
-      overflow: hidden;
-      transition: var(--transition);
-      cursor: pointer;
-      aspect-ratio: 1;
+      position:relative; border-radius:15px; overflow:hidden;
+      transition:var(--transition); cursor:pointer; aspect-ratio:1;
     }
-
     .media-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      transform:translateY(-5px);
+      box-shadow:0 10px 20px rgba(0,0,0,0.3);
+    }
+    .media-card img,
+    .media-card video {
+      width:100%; height:100%; object-fit:cover;
     }
 
-    .media-card video,
-    .media-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
+    /* fullscreen viewer */
     #fullscreenViewer {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.9);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+      display:none; position:fixed; top:0; left:0;
+      width:100vw; height:100vh;
+      background:rgba(0,0,0,0.9);
+      justify-content:center; align-items:center;
+      z-index:1000;
     }
-
     #fullscreenViewer span {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      font-size: 2rem;
-      color: white;
-      cursor: pointer;
+      position:absolute; top:20px; right:30px;
+      font-size:2rem; color:white; cursor:pointer;
     }
-
     #fullscreenContent img,
     #fullscreenContent video {
-      max-width: 90vw;
-      max-height: 90vh;
-      border-radius: 10px;
+      max-width:90vw; max-height:90vh; border-radius:10px;
     }
 
-    #soundPrompt {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-family: sans-serif;
-      z-index: 1001;
+    /* overlay for starting music & gallery */
+    #startOverlay {
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.85); color:white;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.4rem; z-index:2000; cursor:pointer;
     }
   </style>
 </head>
-
 <body>
+  <div id="startOverlay">🎵 Tap to start music & gallery</div>
+
   <header class="header">🎵 <strong>IV‑4</strong></header>
   <div class="media-grid" id="publicContent"></div>
   <div id="fullscreenViewer" onclick="closeFullscreen()">
     <span>×</span>
     <div id="fullscreenContent"></div>
   </div>
+
+  <!-- Audio without autoplay/muted -->
   <audio id="backgroundMusic" src="media/background.mp3" loop></audio>
-  <div id="soundPrompt">🔊 Click or tap anywhere to enable sound</div>
 
   <script>
-    // Variables for auto-scrolling
     let hasInteracted = false;
     let lastInteractionTime = Date.now();
     let isAutoScrolling = false;
     let dir = 1;
 
-    // Update last interaction time and stop auto-scrolling on user interaction
-    ['mousemove', 'mousedown', 'touchstart', 'keydown', 'wheel'].forEach(event => {
-      document.addEventListener(event, () => {
-        lastInteractionTime = Date.now();
-        isAutoScrolling = false;
-      }, { passive: true });
+    // auto-scroll on idle
+    ['mousemove','mousedown','touchstart','keydown','wheel'].forEach(evt=>{
+      document.addEventListener(evt,()=>{
+        lastInteractionTime=Date.now();
+        isAutoScrolling=false;
+      },{passive:true});
     });
-
-    // Check for idleness every second
-    setInterval(() => {
-      if (hasInteracted && (Date.now() - lastInteractionTime > 2500)) {
-        isAutoScrolling = true;
+    setInterval(()=>{
+      if(hasInteracted && Date.now()-lastInteractionTime>2500){
+        isAutoScrolling=true;
       }
-    }, 1000);
-
-    // Auto-scroll function
-    function autoScroll() {
-      if (!document.hasFocus()) {
-        requestAnimationFrame(autoScroll);
-        return;
-      }
-      if (isAutoScrolling) {
-        window.scrollBy(0, dir * 0.5);
-        const maxY = document.body.scrollHeight - window.innerHeight;
-        if (window.scrollY >= maxY) dir = -1;
-        if (window.scrollY <= 0) dir = 1;
+    },1000);
+    function autoScroll(){
+      if(isAutoScrolling && document.hasFocus()){
+        window.scrollBy(0,dir*0.5);
+        const maxY=document.body.scrollHeight-window.innerHeight;
+        if(window.scrollY>=maxY) dir=-1;
+        if(window.scrollY<=0) dir=1;
       }
       requestAnimationFrame(autoScroll);
     }
     requestAnimationFrame(autoScroll);
 
-    // Load and render gallery
-    async function fetchPublicMedia() {
-      const res = await fetch('media/manifest.json');
-      const list = await res.json();
-      const container = document.getElementById('publicContent');
-      container.innerHTML = '';
-      list.forEach(m => {
-        const card = document.createElement('div');
-        card.className = 'media-card';
-        if (m.type === 'image') {
-          const img = document.createElement('img');
-          img.src = m.path;
-          card.appendChild(img);
+    // gallery loader
+    async function fetchPublicMedia(){
+      const res=await fetch('media/manifest.json');
+      const list=await res.json();
+      const c=document.getElementById('publicContent');
+      c.innerHTML='';
+      list.forEach(m=>{
+        const card=document.createElement('div');
+        card.className='media-card';
+        if(m.type==='image'){
+          const img=document.createElement('img');
+          img.src=m.path; card.appendChild(img);
         } else {
-          const vid = document.createElement('video');
-          vid.controls = true;
-          vid.setAttribute('controlsList', 'nodownload');
-          vid.muted = true;
-          const src = document.createElement('source');
-          src.src = m.path; src.type = 'video/mp4';
-          vid.appendChild(src);
+          const vid=document.createElement('video');
+          vid.controls=true; vid.muted=true;
+          vid.setAttribute('controlsList','nodownload');
+          const src=document.createElement('source');
+          src.src=m.path; src.type='video/mp4'; vid.appendChild(src);
           card.appendChild(vid);
         }
-        card.addEventListener('click', () => {
-          document.querySelectorAll('.media-card video').forEach(v => v.pause());
-          const viewer = document.getElementById('fullscreenViewer');
-          const content = document.getElementById('fullscreenContent');
-          content.innerHTML = '';
-          if (m.type === 'image') {
-            content.appendChild(Object.assign(document.createElement('img'), { src: m.path }));
+        card.addEventListener('click',()=>{
+          document.querySelectorAll('.media-card video').forEach(v=>v.pause());
+          const viewer=document.getElementById('fullscreenViewer'),
+                content=document.getElementById('fullscreenContent');
+          content.innerHTML='';
+          if(m.type==='image'){
+            content.appendChild(Object.assign(document.createElement('img'),{src:m.path}));
           } else {
-            const v2 = document.createElement('video');
-            v2.src = m.path; v2.controls = true; v2.autoplay = true;
-            v2.setAttribute('controlsList', 'nodownload');
-            v2.muted = false;
+            const v2=document.createElement('video');
+            v2.src=m.path; v2.controls=true; v2.autoplay=true; v2.muted=false;
+            v2.setAttribute('controlsList','nodownload');
             content.appendChild(v2);
           }
-          viewer.style.display = 'flex';
+          viewer.style.display='flex';
         });
-        container.appendChild(card);
+        c.appendChild(card);
       });
     }
-
-    function closeFullscreen() {
-      const fsVid = document.querySelector('#fullscreenContent video');
-      if (fsVid) fsVid.pause();
-      document.getElementById('fullscreenViewer').style.display = 'none';
+    function closeFullscreen(){
+      const v=document.querySelector('#fullscreenContent video');
+      if(v) v.pause();
+      document.getElementById('fullscreenViewer').style.display='none';
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // START OVERLAY logic
+    const overlay=document.getElementById('startOverlay'),
+          music=document.getElementById('backgroundMusic');
+    overlay.addEventListener('click',function onStart(){
+      overlay.remove();
+      music.play().catch(e=>console.warn('play failed:',e));
+      hasInteracted=true;
       fetchPublicMedia();
-      const music = document.getElementById('backgroundMusic');
-      const prompt = document.getElementById('soundPrompt');
-      prompt.style.display = 'block';
-      /*setTimeout(() => music.play().catch((err) => { console.log('Play promise rejected:', err); }), 500);*/
-
-  function enableSound(e) {
-    // hide the prompt
-    prompt.style.display = 'none';
-
-    // now play the music—this is a direct user gesture
-    music.play().then(() => {
-      console.log('🔊 Music is playing');
-    }).catch(err => {
-      console.error('🔊 play() failed even after gesture:', err);
-    });
-
-    // mark interaction so auto‑scroll can start
-    hasInteracted = true;
-  }
-      
-      document.body.addEventListener('pointerdown', enableSound, { once: true });
-      document.body.addEventListener('click', enableSound, { once: true });
-    });
+    },{once:true});
   </script>
-  <!-- include Eruda from CDN -->
-<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>
-  eruda.init();
-</script>
-
 </body>
-
 </html>
