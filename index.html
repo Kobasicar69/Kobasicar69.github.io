@@ -165,7 +165,7 @@
     }, 1000);
     function autoScroll() {
       if (isAutoScrolling && document.hasFocus()) {
-        window.scrollBy(0, dir * 0.5);
+        window.scrollBy(0, dir * 1.5);
         const maxY = document.body.scrollHeight - window.innerHeight;
         if (window.scrollY >= maxY) dir = -1;
         if (window.scrollY <= 0) dir = 1;
