@@ -13,14 +13,6 @@
   },
   {
     "type": "image",
-    "path": "media/1746531119125.jpg"
-  },
-  {
-    "type": "image",
-    "path": "media/1746531120955.jpg"
-  },
-  {
-    "type": "image",
     "path": "media/1746531185630.webp"
   },
   {
@@ -337,15 +329,7 @@
   },
   {
     "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 11.10.58.jpeg"
-  },
-  {
-    "type": "image",
     "path": "media/WhatsApp Image 2025-05-05 at 11.11.00.jpeg"
-  },
-  {
-    "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 11.11.01 (1).jpeg"
   },
   {
     "type": "image",
@@ -377,18 +361,6 @@
   },
   {
     "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 11.11.04 (1).jpeg"
-  },
-  {
-    "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 11.11.04 (2).jpeg"
-  },
-  {
-    "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 11.11.04.jpeg"
-  },
-  {
-    "type": "image",
     "path": "media/WhatsApp Image 2025-05-05 at 11.11.05.jpeg"
   },
   {
@@ -398,10 +370,6 @@
   {
     "type": "image",
     "path": "media/WhatsApp Image 2025-05-05 at 11.11.06.jpeg"
-  },
-  {
-    "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 11.11.07.jpeg"
   },
   {
     "type": "image",
@@ -422,10 +390,6 @@
   {
     "type": "image",
     "path": "media/WhatsApp Image 2025-05-05 at 11.11.10 (1).jpeg"
-  },
-  {
-    "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 11.11.10.jpeg"
   },
   {
     "type": "image",
@@ -522,10 +486,6 @@
   {
     "type": "image",
     "path": "media/WhatsApp Image 2025-05-05 at 11.11.20 (1).jpeg"
-  },
-  {
-    "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 11.11.20.jpeg"
   },
   {
     "type": "image",
@@ -673,10 +633,6 @@
   },
   {
     "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 11.22.01 (1).jpeg"
-  },
-  {
-    "type": "image",
     "path": "media/WhatsApp Image 2025-05-05 at 11.22.01 (2).jpeg"
   },
   {
@@ -686,10 +642,6 @@
   {
     "type": "image",
     "path": "media/WhatsApp Image 2025-05-05 at 11.22.01.jpeg"
-  },
-  {
-    "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 11.22.02 (1).jpeg"
   },
   {
     "type": "image",
@@ -746,10 +698,6 @@
   {
     "type": "image",
     "path": "media/WhatsApp Image 2025-05-05 at 11.22.11 (3).jpeg"
-  },
-  {
-    "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 11.22.11.jpeg"
   },
   {
     "type": "image",
@@ -821,10 +769,6 @@
   },
   {
     "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 12.19.36 (1).jpeg"
-  },
-  {
-    "type": "image",
     "path": "media/WhatsApp Image 2025-05-05 at 12.19.36 (2).jpeg"
   },
   {
@@ -842,10 +786,6 @@
   {
     "type": "image",
     "path": "media/WhatsApp Image 2025-05-05 at 12.19.37 (1).jpeg"
-  },
-  {
-    "type": "image",
-    "path": "media/WhatsApp Image 2025-05-05 at 12.19.37 (2).jpeg"
   },
   {
     "type": "image",
@@ -1250,6 +1190,10 @@
   {
     "type": "image",
     "path": "media/WhatsApp Image 2025-05-05 at 14.05.43.jpeg"
+  },
+  {
+    "type": "image",
+    "path": "media/WhatsApp Image 2025-05-05 at 22.03.49.jpeg"
   },
   {
     "type": "image",
@@ -1818,6 +1762,10 @@
   {
     "type": "video",
     "path": "media/WhatsApp Video 2025-05-05 at 14.05.38.mp4"
+  },
+  {
+    "type": "video",
+    "path": "media/WhatsApp Video 2025-05-05 at 22.03.49.mp4"
   },
   {
     "type": "video",
