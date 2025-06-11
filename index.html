@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IV-4 (24/25) - Smooth AutoScroll</title>
+  <title>IV-4 (24/25)</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
@@ -46,7 +46,7 @@
     .media-grid {
       display: grid;
       /* Kartice minimum 250px širine; na manjim ekranima ih stane više u red */
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 1rem;
       /* Padding-top dovoljno velik da sadržaj ne bude ispod headera */
       padding: calc(1rem + 3.5rem) 1rem 2rem; /* 3.5rem approximira visinu headera + mali razmak */
@@ -253,11 +253,11 @@
   <!-- Overlay pre galerije/audio starta -->
   <div id="startOverlay">
     <span class="emoji">🎵</span>
-    <span class="text">Кликни или drži da startuje</span>
+    <span class="text">Кликни опет бури</span>
   </div>
 
   <!-- Fiksirani header -->
-  <header class="header">🎵 <strong>IV-4 (24/25)</strong></header>
+  <header class="header">🎵 <strong>IV-4 (21/25)</strong></header>
 
   <!-- Grid za karte -->
   <div class="media-grid" id="publicContent"></div>
@@ -392,6 +392,9 @@
     let holdStart = 0;
 
     function doStart() {
+      lastInteractionTime = Date.now();
+      isAutoScrolling = false; // osiguravamo da ne krene odmah
+      hasInteracted = true;
       overlay.remove();
       music.play().catch(e => console.warn('play failed:', e));
       hasInteracted = true;
