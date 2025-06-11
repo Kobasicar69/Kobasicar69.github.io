@@ -24,13 +24,10 @@
     }
 
     body {
-      background: var(--primary);
-      color: var(--text);
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+          background: var(--primary);
+          color: var(--light);
+          overflow-x: hidden;
+        }
 
     .header {
       padding: 2rem;
@@ -116,9 +113,17 @@
 
   #startOverlay {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;             /* top:0; right:0; bottom:0; left:0; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--overlay-bg);
+    z-index: 9999;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  #startOverlay .content {
     width: 90%;
     max-width: 420px;
     padding: 2rem 1.8rem;
@@ -126,18 +131,13 @@
     border: 1px solid var(--glow);
     border-radius: 16px;
     backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
     box-shadow:
       0 10px 40px var(--glow),
       0 5px 20px rgba(255, 0, 0, 0.1);
     text-align: center;
-    cursor: pointer;
-    z-index: 9999;
-    overflow: hidden;
-    opacity: 0;
-    animation: fadeIn 1s ease-out forwards 0.4s;
     transition: var(--transition);
   }
+
 
   #startOverlay::before {
     content: '';
@@ -228,8 +228,10 @@
 
 <body>
   <div id="startOverlay">
-    <span class="emoji">🎵</span>
-    <span class="text">Кликни опет бури</span>
+    <div class="content">
+      <span class="emoji">🎵</span>
+      <span class="text">Кликни опет бури</span>
+    </div>
   </div>
 
   <header class="header">🎵 <strong>IV‑4 (24/25)</strong></header>
