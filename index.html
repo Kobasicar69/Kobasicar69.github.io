@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IV‑4 (24/25)</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
     :root {
       --primary: #1a1a1a;
       --accent: #ff4757;
@@ -17,13 +18,102 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: "Montserrat", sans-serif;
+      font-optical-sizing: auto;
+      font-style: normal;
     }
 
     body {
       background: var(--primary);
       color: var(--light);
       overflow-x: hidden;
+    }
+
+    #startOverlay {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 420px;
+      padding: 2rem 1.8rem;
+      background: rgba(20, 20, 20, 0.8);
+      border: 1px solid rgba(255, 0, 0, 0.2);
+      border-radius: 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow:
+        0 10px 40px rgba(255, 0, 0, 0.15),
+        0 5px 20px rgba(255, 0, 0, 0.1);
+      text-align: center;
+      cursor: pointer;
+      z-index: 9999;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeIn 1.2s ease-out forwards 0.3s;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    #startOverlay::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, rgba(255,0,0,0.15), transparent 70%);
+      animation: pulseGlow 6s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    .emoji {
+      font-size: 3.2rem;
+      margin-bottom: 0.3rem;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .text {
+      font-size: 1.9rem;
+      font-weight: 600;
+      color: #ff4c4c;
+      text-shadow:
+        0 0 5px rgba(255, 0, 0, 0.5),
+        0 0 10px rgba(255, 0, 0, 0.3);
+      transition: text-shadow 0.4s ease, transform 0.4s ease;
+    }
+
+    #startOverlay:hover {
+      transform: translate(-50%, -50%) scale(1.05);
+      box-shadow:
+        0 15px 50px rgba(255, 0, 0, 0.25),
+        0 10px 30px rgba(255, 0, 0, 0.15);
+    }
+
+    #startOverlay:hover .emoji {
+      transform: translateY(-6px) rotate(8deg);
+    }
+
+    #startOverlay:hover .text {
+      text-shadow:
+        0 0 10px rgba(255, 20, 20, 0.8),
+        0 0 20px rgba(255, 60, 60, 0.6);
+      transform: scale(1.03);
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.2;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 0.4;
+      }
     }
 
     .header {
@@ -126,7 +216,10 @@
 </head>
 
 <body>
-  <div id="startOverlay">🎵 Кликни опет бури</div>
+  <div id="startOverlay">
+    <span class="emoji">🎵</span>
+    <span class="text">Кликни опет бури</span>
+  </div>
 
   <header class="header">🎵 <strong>IV‑4 (24/25)</strong></header>
   <div class="media-grid" id="publicContent"></div>
