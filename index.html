@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>IV‑4 (24/25)</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
@@ -23,17 +23,20 @@
       font-family: "Montserrat", sans-serif;
     }
 
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
     body {
       background: var(--primary);
       color: var(--text);
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: relative;
     }
 
     .header {
-      padding: 2rem;
+      padding: 1.5rem;
       text-align: center;
       background: rgba(0, 0, 0, 0.9);
       backdrop-filter: blur(10px);
@@ -45,22 +48,12 @@
 
     .media-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 2rem;
-      padding: 8rem 2rem 2rem;
-    }
-
-    /* Adjustments for smaller screens */
-    @media (max-width: 768px) {
-      .media-grid {
-        padding: 6rem 1rem 1rem;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .media-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      }
+      grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+      gap: 1.5rem;
+      padding: 6rem 1.5rem 2rem;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
     .media-card {
@@ -70,6 +63,7 @@
       transition: var(--transition);
       cursor: pointer;
       aspect-ratio: 1;
+      width: 100%;
     }
 
     .media-card:hover {
@@ -82,7 +76,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      pointer-events: auto; /* Ensure interactions work */
+      pointer-events: auto;
     }
 
     /* Prevent callout and selection */
@@ -122,7 +116,7 @@
       max-width: 90vw;
       max-height: 90vh;
       border-radius: 10px;
-      pointer-events: auto; /* Ensure interactions work */
+      pointer-events: auto;
     }
 
     #startOverlay {
@@ -234,6 +228,24 @@
       50%  { opacity: 0.4; }
       100% { transform: scale(var(--ripple-scale,6)); opacity: 0; }
     }
+
+    /* Mobile-specific adjustments */
+    @media (max-width: 768px) {
+      .header {
+        padding: 1rem;
+      }
+      
+      .media-grid {
+        padding: 5rem 1rem 1rem;
+        gap: 1rem;
+      }
+      
+      #fullscreenViewer span {
+        top: 15px;
+        right: 20px;
+        font-size: 1.8rem;
+      }
+    }
   </style>
 </head>
 
@@ -265,33 +277,68 @@
     let lastInteractionTime = Date.now();
     let isAutoScrolling = false;
     let dir = 1;
+    let scrollInterval;
+    let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // Auto-scroll on idle
-    ['mousemove', 'mousedown', 'touchstart', 'keydown', 'wheel'].forEach(evt => {
-      document.addEventListener(evt, () => {
-        lastInteractionTime = Date.now();
-        isAutoScrolling = false;
-      }, { passive: true });
-    });
-    setInterval(() => {
-      if (hasInteracted && Date.now() - lastInteractionTime > 2500) {
-        isAutoScrolling = true;
-      }
-    }, 1000);
+    // Improved auto-scroll on idle
+    function setupAutoScroll() {
+      // Clear any existing interval
+      if (scrollInterval) clearInterval(scrollInterval);
+      
+      // Reset interaction tracking
+      ['mousemove', 'mousedown', 'touchstart', 'keydown', 'wheel', 'scroll'].forEach(evt => {
+        document.addEventListener(evt, () => {
+          lastInteractionTime = Date.now();
+          isAutoScrolling = false;
+        }, { passive: true });
+      });
 
-    function autoScroll() {
-      if (isAutoScrolling) {
-        window.scrollBy(0, dir * 2); // Increased to 2 pixels per frame
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 10) {
-          dir = -1; // Scroll up when bottom is reached
-        } else if (window.scrollY <= 0) {
-          dir = 1; // Scroll down when top is reached
+      // Check for idle state
+      setInterval(() => {
+        if (hasInteracted && Date.now() - lastInteractionTime > 2500) {
+          isAutoScrolling = true;
         }
-      }
-      requestAnimationFrame(autoScroll);
-    }
+      }, 1000);
 
-    requestAnimationFrame(autoScroll);
+      // Mobile-friendly auto-scroll
+      if (isMobile) {
+        scrollInterval = setInterval(() => {
+          if (isAutoScrolling && document.hasFocus()) {
+            const currentScroll = window.scrollY || document.documentElement.scrollTop;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            
+            if (currentScroll >= maxScroll - 10) {
+              dir = -1;
+            } else if (currentScroll <= 10) {
+              dir = 1;
+            }
+            
+            window.scrollBy({
+              top: dir * 2,
+              behavior: 'smooth'
+            });
+          }
+        }, 50);
+      } else {
+        // Desktop auto-scroll (using RAF for smoother animation)
+        function autoScroll() {
+          if (isAutoScrolling && document.hasFocus()) {
+            const currentScroll = window.scrollY || document.documentElement.scrollTop;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            
+            if (currentScroll >= maxScroll - 10) {
+              dir = -1;
+            } else if (currentScroll <= 10) {
+              dir = 1;
+            }
+            
+            window.scrollBy(0, dir * 1.5);
+          }
+          requestAnimationFrame(autoScroll);
+        }
+        requestAnimationFrame(autoScroll);
+      }
+    }
 
     // Gallery loader
     async function fetchPublicMedia() {
@@ -307,13 +354,15 @@
           const img = document.createElement('img');
           img.src = m.path;
           img.draggable = false;
+          img.loading = "lazy"; // Add lazy loading
           card.appendChild(img);
         } else {
           const vid = document.createElement('video');
           vid.muted = true;
-          vid.controls = true; // Enable controls in grid
+          vid.controls = true;
           vid.setAttribute('controlsList', 'nodownload');
           vid.draggable = false;
+          vid.playsInline = true; // Important for mobile
           const src = document.createElement('source');
           src.src = m.path;
           src.type = 'video/mp4';
@@ -321,9 +370,8 @@
           card.appendChild(vid);
         }
         card.addEventListener('click', (event) => {
-          // Prevent fullscreen if clicking video controls
           if (event.target.tagName === 'VIDEO' && event.target === event.currentTarget.querySelector('video')) {
-            return; // Let video controls handle the click
+            return;
           }
           document.querySelectorAll('.media-card video').forEach(v => v.pause());
           const viewer = document.getElementById('fullscreenViewer'),
@@ -342,14 +390,18 @@
             v2.muted = false;
             v2.setAttribute('controlsList', 'nodownload');
             v2.draggable = false;
+            v2.playsInline = true;
             content.appendChild(v2);
           }
           viewer.style.display = 'flex';
         });
         c.appendChild(card);
       });
-      // Ensure page starts at the top after loading media
-      window.scrollTo(0, 0);
+      
+      // Ensure content is properly sized
+      setTimeout(() => {
+        document.body.style.minHeight = `${document.body.scrollHeight}px`;
+      }, 500);
     }
 
     function closeFullscreen() {
@@ -360,47 +412,41 @@
 
     // START OVERLAY logic
     const overlay = document.getElementById('startOverlay');
-    const music = document.getElementById('backgroundMusic');
+    const music   = document.getElementById('backgroundMusic');
     let holdTimer = null;
     let holdStart = 0;
 
-    // Helper to fire the “start” action
     function doStart() {
       overlay.remove();
       music.play().catch(e => console.warn('play failed:', e));
       hasInteracted = true;
       fetchPublicMedia();
+      setupAutoScroll(); // Initialize auto-scroll after content loads
     }
 
-    // Create & animate a ripple at (x,y)
     function createRipple(x, y) {
       const rect = overlay.getBoundingClientRect();
       const size = Math.max(rect.width, rect.height);
       const ripple = document.createElement('span');
       ripple.className = 'ripple';
-      ripple.style.width = ripple.style.height = `${size}px`;
-      ripple.style.left = `${x - rect.left - size/2}px`;
-      ripple.style.top = `${y - rect.top - size/2}px`;
+      ripple.style.width  = ripple.style.height = `${size}px`;
+      ripple.style.left   = `${x - rect.left  - size/2}px`;
+      ripple.style.top    = `${y - rect.top   - size/2}px`;
       overlay.appendChild(ripple);
       ripple.addEventListener('animationend', () => ripple.remove());
     }
 
-    // On press start (mouse or touch)
     function onPressStart(e) {
       e.preventDefault();
       holdStart = Date.now();
-      // Schedule the 10s "auto-start" if they keep holding
       holdTimer = setTimeout(doStart, 10000);
 
-      // Immediate ripple
       const x = e.touches ? e.touches[0].clientX : e.clientX;
       const y = e.touches ? e.touches[0].clientY : e.clientY;
       createRipple(x, y);
     }
 
-    // On release (mouse or touch)
     function onPressEnd(e) {
-      // Cancel the auto-start if released early
       clearTimeout(holdTimer);
       const held = Date.now() - holdStart;
       if (held < 10000) {
@@ -408,12 +454,17 @@
       }
     }
 
-    // Bind both mouse AND touch
-    overlay.addEventListener('mousedown', onPressStart, { passive: false });
+    overlay.addEventListener('mousedown',  onPressStart, { passive: false });
     overlay.addEventListener('touchstart', onPressStart, { passive: false });
-    overlay.addEventListener('mouseup', onPressEnd);
-    overlay.addEventListener('touchend', onPressEnd);
+    overlay.addEventListener('mouseup',    onPressEnd);
+    overlay.addEventListener('touchend',   onPressEnd);
+
+    // Disable right-click on images and videos
+    document.addEventListener('contextmenu', event => {
+      if (event.target.tagName === 'IMG' || event.target.tagName === 'VIDEO') {
+        event.preventDefault();
+      }
+    });
   </script>
 </body>
-
 </html>
