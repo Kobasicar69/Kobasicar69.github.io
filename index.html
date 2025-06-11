@@ -285,22 +285,16 @@
       }
     }, 1000);
 
-    function autoScroll() {
-          if (isAutoScrolling && document.hasFocus()) {
-            const currentScroll = window.scrollY || document.documentElement.scrollTop;
-            const maxScroll = document.body.scrollHeight - window.innerHeight;
-            
-            if (currentScroll >= maxScroll - 2) {
-              dir = -1;
-            } else if (currentScroll <= 2) {
-              dir = 1;
-            }
-            
-            window.scrollBy(0, dir * 1.5);
-          }
-          requestAnimationFrame(autoScroll);
-        }
-        requestAnimationFrame(autoScroll);
+function autoScroll() {
+      if (isAutoScrolling && document.hasFocus()) {
+        window.scrollBy(0, dir * 1.5);
+        const maxY = document.body.scrollHeight - window.innerHeight;
+        if (window.scrollY >= maxY) dir = -1;
+        if (window.scrollY <= 0) dir = 1;
+      }
+      requestAnimationFrame(autoScroll);
+    }
+    requestAnimationFrame(autoScroll);
 
     // Učitavanje galerije
     async function fetchPublicMedia() {
