@@ -4,10 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IV-4 (24/25)</title>
+  <title>IV‑4 (24/25)</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
-
     :root {
       --primary: #0b0b0b;
       --accent: #ff4c4c;
@@ -24,16 +23,17 @@
       font-family: "Montserrat", sans-serif;
     }
 
-    html, body {
+    body {
       background: var(--primary);
       color: var(--text);
-      min-height: 100vh; /* dozvoli skrolanje kad ima više sadržaja */
-      /* uklonjen display:flex i centriranje */
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* Fiksirani header */
     .header {
-      padding: 1.5rem;
+      padding: 2rem;
       text-align: center;
       background: rgba(0, 0, 0, 0.9);
       backdrop-filter: blur(10px);
@@ -41,34 +41,40 @@
       top: 0;
       width: 100%;
       z-index: 100;
-      /* Nakon headera, sadržaj u .media-grid počinje ispod */
     }
 
-    /* Grid za karte */
     .media-grid {
       display: grid;
-      /* minimum širina kartice 250px (umjesto 300px), da na manjim ekranima više stane u red */
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
-      /* gornji padding dovoljno velik da sadržaj ne "ide ispod" headera */
-      padding: calc(1rem + 3.5rem) 1rem 2rem; /* 3.5rem = visina headera + mali razmak */
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      padding: 8rem 2rem 2rem;
+    }
+
+    /* Adjustments for smaller screens */
+    @media (max-width: 768px) {
+      .media-grid {
+        padding: 6rem 1rem 1rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .media-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
     }
 
     .media-card {
       position: relative;
-      border-radius: 12px;
+      border-radius: 15px;
       overflow: hidden;
       transition: var(--transition);
       cursor: pointer;
-      /* aspect-ratio: 1;  može ostati, ali na nekim starijim preglednicima možda nije podržano.
-         Ako je problem, možete koristiti padding-trick, npr. .media-card { position: relative; width: 100%; padding-top: 100%; } i unutra apsolutni <img>. */
       aspect-ratio: 1;
-      background: #222; /* fallback boja dok se slika učita */
     }
 
     .media-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
     }
 
     .media-card img,
@@ -76,11 +82,10 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      pointer-events: auto; /* osigurava da se može kliknuti na video kontrole */
-      display: block;
+      pointer-events: auto; /* Ensure interactions work */
     }
 
-    /* Onemogući selekciju i callout */
+    /* Prevent callout and selection */
     img, video {
       -webkit-touch-callout: none;
       -webkit-user-select: none;
@@ -110,7 +115,6 @@
       font-size: 2rem;
       color: white;
       cursor: pointer;
-      z-index: 1001;
     }
 
     #fullscreenContent img,
@@ -118,11 +122,9 @@
       max-width: 90vw;
       max-height: 90vh;
       border-radius: 10px;
-      pointer-events: auto;
-      display: block;
+      pointer-events: auto; /* Ensure interactions work */
     }
 
-    /* START OVERLAY */
     #startOverlay {
       position: fixed;
       top: 50%;
@@ -141,7 +143,7 @@
         0 5px 20px rgba(255, 0, 0, 0.1);
       text-align: center;
       cursor: pointer;
-      z-index: 2000;
+      z-index: 9999;
       overflow: hidden;
       opacity: 0;
       animation: fadeIn 1s ease-out forwards 0.4s;
@@ -212,7 +214,6 @@
       }
     }
 
-    /* Ripple za overlay */
     #startOverlay .ripple {
       position: absolute;
       border-radius: 50%;
@@ -237,29 +238,22 @@
 </head>
 
 <body>
-  <!-- Overlay -->
   <div id="startOverlay">
     <span class="emoji">🎵</span>
     <span class="text">Кликни опет бури</span>
   </div>
 
-  <!-- Fiksirani header -->
-  <header class="header">🎵 <strong>IV-4 (24/25)</strong></header>
-
-  <!-- Grid za medije -->
+  <header class="header">🎵 <strong>IV‑4 (24/25)</strong></header>
   <div class="media-grid" id="publicContent"></div>
-
-  <!-- Fullscreen viewer -->
   <div id="fullscreenViewer" onclick="closeFullscreen()">
     <span>×</span>
     <div id="fullscreenContent"></div>
   </div>
 
-  <!-- Audio -->
+  <!-- Audio without autoplay/muted -->
   <audio id="backgroundMusic" src="media/background.mp3" loop></audio>
 
   <script>
-    // Shuffle array util
     function shuffle(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -272,8 +266,8 @@
     let isAutoScrolling = false;
     let dir = 1;
 
-    // Praćenje interakcije da se ne auto-skrola odmah
-    ['mousemove', 'mousedown', 'touchstart', 'keydown', 'wheel', 'scroll'].forEach(evt => {
+    // Auto-scroll on idle
+    ['mousemove', 'mousedown', 'touchstart', 'keydown', 'wheel'].forEach(evt => {
       document.addEventListener(evt, () => {
         lastInteractionTime = Date.now();
         isAutoScrolling = false;
@@ -287,93 +281,90 @@
 
     function autoScroll() {
       if (isAutoScrolling) {
-        window.scrollBy(0, dir * 1.5);
-        // Provjera dosegnutog dna ili vrha sa tolerancijom 2px
-        const scrollY = window.scrollY || window.pageYOffset;
-        const maxY = document.documentElement.scrollHeight - window.innerHeight;
-        if (scrollY >= maxY - 2) {
-          dir = -1;
-        } else if (scrollY <= 2) {
-          dir = 1;
+        window.scrollBy(0, dir * 2); // Increased to 2 pixels per frame
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 10) {
+          dir = -1; // Scroll up when bottom is reached
+        } else if (window.scrollY <= 0) {
+          dir = 1; // Scroll down when top is reached
         }
       }
       requestAnimationFrame(autoScroll);
     }
+
     requestAnimationFrame(autoScroll);
 
-    // Učitavanje galerije
+    // Gallery loader
     async function fetchPublicMedia() {
-      try {
-        const res = await fetch('media/manifest.json');
-        const list = await res.json();
-        shuffle(list);
-        const c = document.getElementById('publicContent');
-        c.innerHTML = '';
-        list.forEach(m => {
-          const card = document.createElement('div');
-          card.className = 'media-card';
+      const res = await fetch('media/manifest.json');
+      const list = await res.json();
+      shuffle(list);
+      const c = document.getElementById('publicContent');
+      c.innerHTML = '';
+      list.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'media-card';
+        if (m.type === 'image') {
+          const img = document.createElement('img');
+          img.src = m.path;
+          img.draggable = false;
+          card.appendChild(img);
+        } else {
+          const vid = document.createElement('video');
+          vid.muted = true;
+          vid.controls = true; // Enable controls in grid
+          vid.setAttribute('controlsList', 'nodownload');
+          vid.draggable = false;
+          const src = document.createElement('source');
+          src.src = m.path;
+          src.type = 'video/mp4';
+          vid.appendChild(src);
+          card.appendChild(vid);
+        }
+        card.addEventListener('click', (event) => {
+          // Prevent fullscreen if clicking video controls
+          if (event.target.tagName === 'VIDEO' && event.target === event.currentTarget.querySelector('video')) {
+            return; // Let video controls handle the click
+          }
+          document.querySelectorAll('.media-card video').forEach(v => v.pause());
+          const viewer = document.getElementById('fullscreenViewer'),
+                content = document.getElementById('fullscreenContent');
+          content.innerHTML = '';
           if (m.type === 'image') {
             const img = document.createElement('img');
             img.src = m.path;
             img.draggable = false;
-            card.appendChild(img);
+            content.appendChild(img);
           } else {
-            const vid = document.createElement('video');
-            vid.muted = true;
-            vid.controls = true; // controls unutar grid
-            vid.setAttribute('controlsList', 'nodownload');
-            vid.draggable = false;
-            const src = document.createElement('source');
-            src.src = m.path;
-            src.type = 'video/mp4';
-            vid.appendChild(src);
-            card.appendChild(vid);
+            const v2 = document.createElement('video');
+            v2.src = m.path;
+            v2.controls = true;
+            v2.autoplay = true;
+            v2.muted = false;
+            v2.setAttribute('controlsList', 'nodownload');
+            v2.draggable = false;
+            content.appendChild(v2);
           }
-          card.addEventListener('click', (event) => {
-            // Ako je kliknuto na video i cilj je sam video element (da se ne gubi kontrola)
-            if (event.target.tagName === 'VIDEO' && event.target === event.currentTarget.querySelector('video')) {
-              return;
-            }
-            // Pauziraj sve videe u gridu
-            document.querySelectorAll('.media-card video').forEach(v => v.pause());
-            const viewer = document.getElementById('fullscreenViewer'),
-              content = document.getElementById('fullscreenContent');
-            content.innerHTML = '';
-            if (m.type === 'image') {
-              const img = document.createElement('img');
-              img.src = m.path;
-              img.draggable = false;
-              content.appendChild(img);
-            } else {
-              const v2 = document.createElement('video');
-              v2.src = m.path;
-              v2.controls = true;
-              v2.autoplay = true;
-              v2.muted = false;
-              v2.setAttribute('controlsList', 'nodownload');
-              v2.draggable = false;
-              content.appendChild(v2);
-            }
-            viewer.style.display = 'flex';
-          });
-          c.appendChild(card);
+          viewer.style.display = 'flex';
         });
-      } catch (err) {
-        console.error('Greška pri učitavanju galerije:', err);
-      }
+        c.appendChild(card);
+      });
+      // Ensure page starts at the top after loading media
+      window.scrollTo(0, 0);
     }
+
     function closeFullscreen() {
       const v = document.querySelector('#fullscreenContent video');
       if (v) v.pause();
       document.getElementById('fullscreenViewer').style.display = 'none';
     }
 
-    // START OVERLAY logic sa ripple-om i hold
+    // START OVERLAY logic
     const overlay = document.getElementById('startOverlay');
     const music = document.getElementById('backgroundMusic');
     let holdTimer = null;
     let holdStart = 0;
 
+    // Helper to fire the “start” action
     function doStart() {
       overlay.remove();
       music.play().catch(e => console.warn('play failed:', e));
@@ -381,6 +372,7 @@
       fetchPublicMedia();
     }
 
+    // Create & animate a ripple at (x,y)
     function createRipple(x, y) {
       const rect = overlay.getBoundingClientRect();
       const size = Math.max(rect.width, rect.height);
@@ -393,15 +385,22 @@
       ripple.addEventListener('animationend', () => ripple.remove());
     }
 
+    // On press start (mouse or touch)
     function onPressStart(e) {
       e.preventDefault();
       holdStart = Date.now();
+      // Schedule the 10s "auto-start" if they keep holding
       holdTimer = setTimeout(doStart, 10000);
+
+      // Immediate ripple
       const x = e.touches ? e.touches[0].clientX : e.clientX;
       const y = e.touches ? e.touches[0].clientY : e.clientY;
       createRipple(x, y);
     }
+
+    // On release (mouse or touch)
     function onPressEnd(e) {
+      // Cancel the auto-start if released early
       clearTimeout(holdTimer);
       const held = Date.now() - holdStart;
       if (held < 10000) {
@@ -409,13 +408,11 @@
       }
     }
 
+    // Bind both mouse AND touch
     overlay.addEventListener('mousedown', onPressStart, { passive: false });
     overlay.addEventListener('touchstart', onPressStart, { passive: false });
     overlay.addEventListener('mouseup', onPressEnd);
     overlay.addEventListener('touchend', onPressEnd);
-
-    // Sprijeci body flex centriranje koje bi skrivalo grid
-    // (Kod već izbačen iz CSS-a)
   </script>
 </body>
 
