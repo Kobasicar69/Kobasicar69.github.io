@@ -580,20 +580,75 @@
 
   <script>
     // Media data - replace with your actual media files
-    const mediaItems = [
-      { path: "media/image1.jpg", type: "image" },
-      { path: "media/image2.jpg", type: "image" },
-      { path: "media/image3.jpg", type: "image" },
-      { path: "media/image4.jpg", type: "image" },
-      { path: "media/image5.jpg", type: "image" },
-      { path: "media/image6.jpg", type: "image" },
-      { path: "media/video1.mp4", type: "video" },
-      { path: "media/video2.mp4", type: "video" },
-      { path: "media/image7.jpg", type: "image" },
-      { path: "media/image8.jpg", type: "image" },
-      { path: "media/image9.jpg", type: "image" },
-      { path: "media/image10.jpg", type: "image" }
-    ];
+async function fetchPublicMedia() {
+      let list = null;
+      try {
+        const res = await fetch('media/manifest.json');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            list = data;
+          }
+        }
+      } catch (err) {
+        console.warn('manifest load failed, using dummy', err);
+      }
+      
+      shuffle(list);
+      const container = document.getElementById('publicContent');
+      container.innerHTML = '';
+      list.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'media-card';
+        if (m.type === 'image') {
+          const img = document.createElement('img');
+          img.src = m.path;
+          img.draggable = false;
+          card.appendChild(img);
+        } else {
+          const vid = document.createElement('video');
+          vid.muted = true;
+          vid.controls = true;
+          vid.setAttribute('controlsList', 'nodownload');
+          vid.playsInline = true;
+          const src = document.createElement('source');
+          src.src = m.path;
+          src.type = 'video/mp4';
+          vid.appendChild(src);
+          card.appendChild(vid);
+        }
+        card.addEventListener('click', event => {
+          if (
+            event.target.tagName === 'VIDEO' &&
+            event.target === card.querySelector('video')
+          ) {
+            return;
+          }
+          document.querySelectorAll('.media-card video').forEach(v => v.pause());
+          const viewer = document.getElementById('fullscreenViewer');
+          const content = document.getElementById('fullscreenContent');
+          content.innerHTML = '';
+          if (m.type === 'image') {
+            const img2 = document.createElement('img');
+            img2.src = m.path;
+            img2.draggable = false;
+            content.appendChild(img2);
+          } else {
+            const vid2 = document.createElement('video');
+            vid2.src = m.path;
+            vid2.controls = true;
+            vid2.autoplay = true;
+            vid2.muted = false;
+            vid2.setAttribute('controlsList', 'nodownload');
+            vid2.playsInline = true;
+            content.appendChild(vid2);
+          }
+          viewer.style.display = 'flex';
+        });
+        container.appendChild(card);
+      });
+    }
+
 
     // Enhanced AutoScroller class
     class AutoScroller {
