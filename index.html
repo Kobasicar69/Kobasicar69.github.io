@@ -1,22 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sr">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IV-4 (24/25)</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IV-4 Галерија</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
-
-    :root {
-      --primary: #0b0b0b;
-      --accent: #ff4c4c;
-      --text: #ffffff;
-      --overlay-bg: rgba(20, 20, 20, 0.85);
-      --glow: rgba(255, 0, 0, 0.25);
-      --transition: 0.4s ease;
-      --progress-height: 4px;
-    }
 
     * {
       margin: 0;
@@ -25,21 +16,42 @@
       font-family: "Montserrat", sans-serif;
     }
 
-    html,
-    body {
-      background: var(--primary);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-y: auto;
+    :root {
+      --primary: #0b0b0b;
+      --accent: #ff4c4c;
+      --text: #ffffff;
+      --card-bg: #1a1a1a;
+      --overlay-bg: rgba(20, 20, 20, 0.95);
+      --glow: rgba(255, 0, 0, 0.25);
+      --transition: 0.4s ease;
+      --progress-height: 4px;
+      --card-size: min(300px, 90vw);
+      --header-height: 70px;
     }
 
-    /* Fixed header */
+    body {
+      background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top right, rgba(255, 76, 76, 0.1) 0%, transparent 40%);
+      z-index: -1;
+    }
+
     .header {
-      padding: 1rem 1.5rem;
-      text-align: center;
-      background: rgba(0, 0, 0, 0.9);
+      padding: 0.8rem 1.5rem;
+      background: rgba(15, 15, 15, 0.95);
       backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
       position: fixed;
       top: 0;
       width: 100%;
@@ -47,13 +59,39 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      height: var(--header-height);
+      border-bottom: 1px solid rgba(255, 76, 76, 0.2);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
-    .header>div:first-child {
-      white-space: nowrap;
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    /* Progress bar container */
+    .logo-icon {
+      background: var(--accent);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 0 15px rgba(255, 76, 76, 0.5);
+    }
+
+    .logo-text {
+      font-weight: 700;
+      font-size: 1.4rem;
+      background: linear-gradient(90deg, #ff4c4c, #ff8e8e);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Progress bar */
     #progressBarContainer {
       position: fixed;
       bottom: 0;
@@ -62,39 +100,56 @@
       height: var(--progress-height);
       background: rgba(255, 255, 255, 0.1);
       z-index: 100;
-      overflow: hidden;
     }
 
-    /* Progress bar: CSS transition removed, JS will drive it exactly */
     #progressBar {
       height: 100%;
       width: 0%;
       background: var(--accent);
       box-shadow: 0 0 10px var(--glow);
-      transition: none;
+      transition: width 0.1s linear;
     }
 
     /* Grid for cards */
     .media-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1rem;
-      padding: calc(1rem + 3.5rem) 1rem calc(2rem + var(--progress-height));
+      grid-template-columns: repeat(auto-fill, minmax(var(--card-size), 1fr));
+      gap: 1.5rem;
+      padding: calc(var(--header-height) + 1rem) 1.5rem 4rem;
+      max-width: 1600px;
+      margin: 0 auto;
     }
 
     .media-card {
       position: relative;
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
-      transition: var(--transition);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       cursor: pointer;
       aspect-ratio: 1;
-      background: #222;
+      background: var(--card-bg);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transform: translateY(0);
+      opacity: 0;
+      animation: cardAppear 0.6s ease forwards;
+      /* Red border transition */
+      border: 2px solid transparent;
+      box-sizing: border-box;
+    }
+
+    @keyframes cardAppear {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .media-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      /* Red border on hover */
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 20px rgba(255, 76, 76, 0.5);
     }
 
     .media-card img,
@@ -102,17 +157,13 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      pointer-events: auto;
       display: block;
+      transition: transform 0.5s ease;
     }
 
-    img,
-    video {
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
+    .media-card:hover img,
+    .media-card:hover video {
+      transform: scale(1.05);
     }
 
     /* Fullscreen viewer */
@@ -123,20 +174,42 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.9);
+      background: var(--overlay-bg);
       justify-content: center;
       align-items: center;
       z-index: 1000;
     }
 
-    #fullscreenViewer span {
+    #fullscreenViewer .close-btn {
       position: absolute;
-      top: 20px;
+      top: 25px;
       right: 30px;
-      font-size: 2rem;
+      font-size: 2.5rem;
       color: white;
       cursor: pointer;
+      background: rgba(0, 0, 0, 0.5);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       z-index: 1001;
+      transition: transform 0.2s;
+    }
+
+    #fullscreenViewer .close-btn:hover {
+      transform: scale(1.1);
+      background: rgba(255, 76, 76, 0.8);
+    }
+
+    #fullscreenContent {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     #fullscreenContent img,
@@ -144,8 +217,123 @@
       max-width: 90vw;
       max-height: 90vh;
       border-radius: 10px;
-      pointer-events: auto;
-      display: block;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2.5rem;
+      color: white;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.5);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1001;
+      transition: all 0.3s;
+      opacity: 0.7;
+    }
+
+    .nav-arrow:hover {
+      background: rgba(255, 76, 76, 0.8);
+      opacity: 1;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .prev-arrow {
+      left: 30px;
+    }
+
+    .next-arrow {
+      right: 30px;
+    }
+
+    /* Control panel */
+    .controls-container {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 8px 15px;
+      border-radius: 30px;
+      /* Curved rectangle background */
+      border: 1px solid rgba(255, 76, 76, 0.3);
+    }
+
+    .control-btn {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 30px;
+      cursor: pointer;
+      min-width: 90px;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .control-btn:hover {
+      background: #e53e3e;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(229, 62, 62, 0.3);
+    }
+
+    .control-btn:active {
+      transform: translateY(0);
+    }
+
+    .control-btn i {
+      font-size: 1.1rem;
+    }
+
+    input[type="range"] {
+      width: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      height: 6px;
+      appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
+    }
+
+    .direction-indicator {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.3rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      transform-origin: center;
+      transition: transform var(--transition);
+    }
+
+    .scrolling-up .direction-indicator {
+      transform: rotate(180deg);
     }
 
     /* START OVERLAY */
@@ -271,186 +459,164 @@
       pointer-events: none;
     }
 
-    /* Control panel */
-    #autoScrollControls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    #autoScrollControls button {
-      background: var(--accent);
-      border: none;
-      color: #fff;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      min-width: 80px;
-      font-weight: bold;
-      transition: background 0.3s, transform 0.1s ease;
-    }
-
-    #autoScrollControls button:active {
-      transform: scale(0.95);
-    }
-
-    #autoScrollControls button:hover {
-      background: #e53e3e;
-    }
-
-    #autoScrollControls input[type="range"] {
-      vertical-align: middle;
-      width: 100px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      height: 5px;
-
-      appearance: none;
-      /* Standard */
-      -webkit-appearance: none;
-      /* Safari/WebKit */
-      -moz-appearance: none;
-      /* Firefox */
-    }
-
-    #autoScrollControls input[type="range"]::-webkit-slider-thumb {
-      appearance: none;
-      -webkit-appearance: none;
-
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--accent);
-      cursor: pointer;
-      box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
-    }
-
-    #autoScrollControls input[type="range"]::-moz-range-thumb {
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--accent);
-      cursor: pointer;
-      box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
-    }
-
-    .direction-indicator {
-      width: 30px;
-      height: 30px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 18px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      transform-origin: center;
-      transition: transform var(--transition);
-      transform: rotate(0deg);
-    }
-
-    .scrolling-up .direction-indicator {
-      transform: rotate(180deg);
-    }
-
-    @media (max-width: 768px) {
+    /* Responsive */
+    @media (max-width: 900px) {
       .header {
         flex-direction: column;
-        gap: 10px;
-        padding: 0.8rem;
+        height: auto;
+        padding: 1rem;
+        gap: 15px;
       }
 
-      #autoScrollControls {
+      .controls-container {
         width: 100%;
-        justify-content: center;
+        justify-content: space-between;
       }
 
-      #autoScrollControls input[type="range"] {
-        width: 80px;
+      .control-group {
+        padding: 6px 12px;
       }
 
-      .header>div:first-child {
-        font-size: 0.9rem;
+      .control-btn {
+        min-width: auto;
+        padding: 8px 14px;
+      }
+
+      input[type="range"] {
+        width: 70px;
+      }
+
+      .prev-arrow,
+      .next-arrow {
+        width: 50px;
+        height: 50px;
+        font-size: 2rem;
+      }
+
+      .media-grid {
+        padding-top: calc(var(--header-height) + 3rem);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .control-btn span {
+        display: none;
+      }
+
+      .control-btn {
+        padding: 10px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+      }
+
+      .control-group {
+        gap: 5px;
       }
     }
   </style>
 </head>
 
 <body>
-  <!-- Progress bar at bottom -->
+  <!-- Progress bar -->
   <div id="progressBarContainer">
     <div id="progressBar"></div>
   </div>
 
-  <!-- Overlay before gallery/audio start -->
-  <div id="startOverlay">
-    <span class="emoji">🎵</span>
-    <span class="text">Кликни опет бури</span>
-  </div>
-
-  <!-- Fixed header -->
+  <!-- Header -->
   <header class="header">
-    <div>🎵 <strong>IV-4 (24/25)</strong></div>
-    <div id="autoScrollControls"></div>
+    <div class="logo">
+      <div class="logo-icon">
+        <i class="fas fa-play"></i>
+      </div>
+      <div class="logo-text">IV-4 Галерија</div>
+    </div>
+
+    <div class="controls-container">
+      <div class="control-group">
+        <button id="toggleScroll" class="control-btn">
+          <i class="fas fa-pause"></i>
+          <span>Пауза</span>
+        </button>
+
+        <div class="direction-indicator">
+          <i class="fas fa-arrow-down"></i>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <span>Брзина:</span>
+        <input type="range" id="speedControl" min="50" max="500" value="150">
+        <span id="speedValue">150px/s</span>
+      </div>
+    </div>
   </header>
 
   <!-- Grid container -->
   <div class="media-grid" id="publicContent"></div>
 
   <!-- Fullscreen viewer -->
-  <div id="fullscreenViewer" onclick="closeFullscreen()">
-    <span>×</span>
+  <div id="fullscreenViewer">
+    <div class="close-btn" onclick="closeFullscreen()">
+      <i class="fas fa-times"></i>
+    </div>
+    <div class="prev-arrow nav-arrow" onclick="navigateFullscreen(-1)">
+      <i class="fas fa-chevron-left"></i>
+    </div>
     <div id="fullscreenContent"></div>
+    <div class="next-arrow nav-arrow" onclick="navigateFullscreen(1)">
+      <i class="fas fa-chevron-right"></i>
+    </div>
+  </div>
+
+  <!-- Start overlay -->
+  <div id="startOverlay">
+    <span class="emoji">🎵</span>
+    <span class="text">Кликни опет бури</span>
   </div>
 
   <!-- Audio -->
-  <audio id="backgroundMusic" src="media/background.mp3" loop></audio>
+  <audio id="backgroundMusic" loop></audio>
 
   <script>
-    // Enhanced AutoScroller with on-time CSS-driven progress bar
+    // Media data - replace with your actual media files
+    const mediaItems = [
+      { path: "media/image1.jpg", type: "image" },
+      { path: "media/image2.jpg", type: "image" },
+      { path: "media/image3.jpg", type: "image" },
+      { path: "media/image4.jpg", type: "image" },
+      { path: "media/image5.jpg", type: "image" },
+      { path: "media/image6.jpg", type: "image" },
+      { path: "media/video1.mp4", type: "video" },
+      { path: "media/video2.mp4", type: "video" },
+      { path: "media/image7.jpg", type: "image" },
+      { path: "media/image8.jpg", type: "image" },
+      { path: "media/image9.jpg", type: "image" },
+      { path: "media/image10.jpg", type: "image" }
+    ];
+
+    // Enhanced AutoScroller class
     class AutoScroller {
       constructor(options = {}) {
         const defaults = {
-          target: document.scrollingElement || document.documentElement,
           speedPxPerSec: 150,
           idleDelay: 2500,
           reverseAtBounds: true,
-          bouncePause: 500,
-          minSpeedPxPerSec: 10,
-          maxSpeedPxPerSec: 500,
-          trackManualSpeed: false,
-          trackSamples: 5,
-          speedDivisor: 20,
-          onStart: null,
-          onStop: null,
-          onToggle: null,
-          onDirectionChange: null,
           keyboardControls: true,
           enabled: true
         };
         this.opts = { ...defaults, ...options };
-        if (typeof this.opts.speedPxPerSec === 'number') {
-          this.opts.speedPxPerSec = {
-            down: this.opts.speedPxPerSec,
-            up: this.opts.speedPxPerSec
-          };
-        }
+        this.opts.speedPxPerSec = {
+          down: this.opts.speedPxPerSec,
+          up: this.opts.speedPxPerSec
+        };
 
-        this.target = this.opts.target;
-        this.idleDelay = this.opts.idleDelay;
-        this.reverseAtBounds = this.opts.reverseAtBounds;
-        this.onStart = this.opts.onStart;
-        this.onStop = this.opts.onStop;
-        this.onToggle = this.opts.onToggle;
-        this.onDirectionChange = this.opts.onDirectionChange;
-        this.keyboardControls = this.opts.keyboardControls;
-
-        this.isAutoScrolling = false;
-        this.isEnabled = this.opts.enabled;
         this.dir = 1;
-        this.floatPos = this._getScrollPos();
+        this.floatPos = window.scrollY;
         this.lastFrameTimestamp = null;
         this.idleTimeoutId = null;
+        this.isAutoScrolling = false;
+        this.isEnabled = this.opts.enabled;
 
         this._initListeners();
         requestAnimationFrame(this._autoScrollFrame.bind(this));
@@ -461,12 +627,9 @@
         if (!val) this.stop();
         else this._onUserInteract();
       }
-      get enabled() {
-        return this.isEnabled;
-      }
 
       _getScrollPos() {
-        return window.scrollY || document.documentElement.scrollTop;
+        return window.scrollY;
       }
 
       _setScrollPos(pos) {
@@ -474,48 +637,51 @@
       }
 
       _initListeners() {
-        // mouse wheel
+        // Mouse wheel
         window.addEventListener('wheel', e => {
           this.dir = e.deltaY > 0 ? 1 : -1;
-          this.onDirectionChange?.(this.dir);
+          this._onDirectionChange();
           this._onUserInteract();
         }, { passive: true });
 
-        // touch
+        // Touch events
         let touchStartY = 0;
         window.addEventListener('touchstart', e => {
           touchStartY = e.touches[0].clientY;
           this._onUserInteract();
         }, { passive: true });
+
         window.addEventListener('touchmove', e => {
           const touchY = e.touches[0].clientY;
           this.dir = touchY > touchStartY ? -1 : 1;
           touchStartY = touchY;
-          this.onDirectionChange?.(this.dir);
+          this._onDirectionChange();
           this._onUserInteract();
         }, { passive: true });
 
-        // scroll resets manual position
-        this.target.addEventListener('scroll', () => {
+        // Scroll reset
+        window.addEventListener('scroll', () => {
           if (!this.isAutoScrolling) {
             this.floatPos = this._getScrollPos();
           }
         }, { passive: true });
 
-        // any interaction stops & resets
+        // Interactions
         ['mousedown', 'mousemove', 'keydown', 'touchstart'].forEach(evt => {
           window.addEventListener(evt, () => this._onUserInteract(), { passive: true });
         });
 
-        // keyboard toggle
-        if (this.keyboardControls) {
-          window.addEventListener('keydown', e => {
-            if (e.code === 'Space' || e.key === ' ') {
-              e.preventDefault();
-              this.toggleEnabled();
-            }
-          });
-        }
+        // Keyboard toggle
+        window.addEventListener('keydown', e => {
+          if (e.code === 'Space' || e.key === ' ') {
+            e.preventDefault();
+            this.toggleEnabled();
+          }
+        });
+      }
+
+      _onDirectionChange() {
+        document.body.classList.toggle('scrolling-up', this.dir === -1);
       }
 
       _onUserInteract() {
@@ -524,7 +690,7 @@
         this._resetProgressBar();
         if (this.isEnabled) {
           this._startProgressBar();
-          this.idleTimeoutId = setTimeout(() => this.start(), this.idleDelay);
+          this.idleTimeoutId = setTimeout(() => this.start(), this.opts.idleDelay);
         }
       }
 
@@ -532,9 +698,8 @@
         const bar = document.getElementById('progressBar');
         bar.style.transition = 'none';
         bar.style.width = '0%';
-        // force reflow
         void bar.offsetWidth;
-        bar.style.transition = `width ${this.idleDelay}ms linear`;
+        bar.style.transition = `width ${this.opts.idleDelay}ms linear`;
         bar.style.width = '100%';
       }
 
@@ -546,24 +711,21 @@
 
       start() {
         if (!this.isEnabled) return;
-        const maxScroll = document.body.scrollHeight - window.innerHeight;
-        if (maxScroll <= 0) return;
         this.floatPos = this._getScrollPos();
         this.isAutoScrolling = true;
         this.lastFrameTimestamp = null;
-        this.onStart?.();
       }
 
       stop() {
-        if (!this.isAutoScrolling) return;
         this.isAutoScrolling = false;
         this.lastFrameTimestamp = null;
-        this.onStop?.();
       }
 
       toggleEnabled() {
         this.enabled = !this.isEnabled;
-        this.onToggle?.(this.isEnabled);
+        document.getElementById('toggleScroll').innerHTML =
+          this.isEnabled ? '<i class="fas fa-pause"></i><span>Пауза</span>' :
+            '<i class="fas fa-play"></i><span>Покрени</span>';
       }
 
       _autoScrollFrame(timestamp) {
@@ -572,36 +734,31 @@
           const dt = (timestamp - this.lastFrameTimestamp) / 1000;
           this.lastFrameTimestamp = timestamp;
 
-          const speed = this.dir > 0
-            ? this.opts.speedPxPerSec.down
-            : this.opts.speedPxPerSec.up;
+          const speed = this.dir > 0 ?
+            this.opts.speedPxPerSec.down :
+            this.opts.speedPxPerSec.up;
+
           this.floatPos += this.dir * speed * dt;
 
           const maxScroll = document.body.scrollHeight - window.innerHeight;
           let directionChanged = false;
+
           if (this.floatPos >= maxScroll) {
             this.floatPos = maxScroll;
-            if (this.reverseAtBounds) {
-              // CALL CALLBACK ONLY WHEN DIRECTION ACTUALLY CHANGES
-              if (this.dir !== -1) {
-                this.dir = -1;
-                directionChanged = true;
-              }
+            if (this.opts.reverseAtBounds && this.dir !== -1) {
+              this.dir = -1;
+              directionChanged = true;
             }
           } else if (this.floatPos <= 0) {
             this.floatPos = 0;
-            if (this.reverseAtBounds) {
-              // CALL CALLBACK ONLY WHEN DIRECTION ACTUALLY CHANGES
-              if (this.dir !== 1) {
-                this.dir = 1;
-                directionChanged = true;
-              }
+            if (this.opts.reverseAtBounds && this.dir !== 1) {
+              this.dir = 1;
+              directionChanged = true;
             }
           }
 
-          // ADDED THIS CALL WHEN DIRECTION CHANGES AT BOUNDARIES
           if (directionChanged) {
-            this.onDirectionChange?.(this.dir);
+            this._onDirectionChange();
           }
 
           this._setScrollPos(this.floatPos);
@@ -610,75 +767,67 @@
       }
     }
 
-    // Create auto-scroll controls
-    function createAutoScrollControls(scroller) {
-      const panel = document.getElementById('autoScrollControls');
-      panel.innerHTML = '';
+    // DOM elements
+    const speedControl = document.getElementById('speedControl');
+    const speedValue = document.getElementById('speedValue');
+    const music = document.getElementById('backgroundMusic');
+    const startOverlay = document.getElementById('startOverlay');
 
-      const btnToggle = document.createElement('button');
-      btnToggle.id = 'toggleScroll';
-      btnToggle.textContent = scroller.isEnabled ? 'Искључи' : 'Укључи';
-      btnToggle.onclick = () => scroller.toggleEnabled();
-      panel.appendChild(btnToggle);
+    // Initialize gallery
+    function initGallery() {
+      loadMediaGallery();
 
-      const speedLabel = document.createElement('span');
-      speedLabel.textContent = `Брзина: ${scroller.opts.speedPxPerSec.down}px/s`;
-      panel.appendChild(speedLabel);
+      // Set music source
+      music.src = 'media/background.mp3';
 
-      const speedInput = document.createElement('input');
-      speedInput.type = 'range';
-      speedInput.min = 10;
-      speedInput.max = 500;
-      speedInput.value = scroller.opts.speedPxPerSec.down;
-      speedInput.oninput = () => {
-        const val = Number(speedInput.value);
-        scroller.opts.speedPxPerSec.down = val;
-        scroller.opts.speedPxPerSec.up = val;
-        speedLabel.textContent = `Брзина: ${val}px/s`;
-      };
-      panel.appendChild(speedInput);
+      // Initialize auto-scroller
+      const scroller = new AutoScroller({
+        speedPxPerSec: 150,
+        idleDelay: 2500,
+        reverseAtBounds: true,
+        keyboardControls: true
+      });
 
-      const dirIndicator = document.createElement('div');
-      dirIndicator.className = 'direction-indicator';
-      dirIndicator.textContent = '↓';
-      dirIndicator.id = 'directionIndicator';
-      panel.appendChild(dirIndicator);
+      // Set up controls
+      speedControl.addEventListener('input', () => {
+        const speed = parseInt(speedControl.value);
+        scroller.opts.speedPxPerSec.down = speed;
+        scroller.opts.speedPxPerSec.up = speed;
+        speedValue.textContent = `${speed}px/s`;
+        localStorage.setItem('gallerySpeed', speed);
+      });
 
-      scroller.onDirectionChange = dir => {
-        document.body.classList.toggle('scrolling-up', dir === -1);
-      };
-      scroller.onToggle = isEnabled => {
-        btnToggle.textContent = isEnabled ? 'Искључи' : 'Укључи';
-      };
+      // Load preferences
+      const savedSpeed = localStorage.getItem('gallerySpeed');
 
-      return { btnToggle, speedInput, dirIndicator };
+      if (savedSpeed) {
+        speedControl.value = savedSpeed;
+        speedValue.textContent = `${savedSpeed}px/s`;
+        scroller.opts.speedPxPerSec.down = parseInt(savedSpeed);
+        scroller.opts.speedPxPerSec.up = parseInt(savedSpeed);
+      }
+
+      // Set up toggle button
+      document.getElementById('toggleScroll').addEventListener('click', () => {
+        scroller.toggleEnabled();
+      });
     }
 
-    // Gallery loading
-    async function fetchPublicMedia() {
-      let list = null;
-      try {
-        const res = await fetch('media/manifest.json');
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            list = data;
-          }
-        }
-      } catch (err) {
-        console.warn('manifest load failed, using dummy', err);
-      }
-      
-      shuffle(list);
+    // Load media gallery
+    function loadMediaGallery() {
       const container = document.getElementById('publicContent');
       container.innerHTML = '';
-      list.forEach(m => {
+
+      mediaItems.forEach((m, index) => {
         const card = document.createElement('div');
         card.className = 'media-card';
+        card.style.animationDelay = `${index * 0.1}s`;
+
         if (m.type === 'image') {
           const img = document.createElement('img');
           img.src = m.path;
-          img.draggable = false;
+          img.alt = '';
+          img.loading = 'lazy';
           card.appendChild(img);
         } else {
           const vid = document.createElement('video');
@@ -692,102 +841,95 @@
           vid.appendChild(src);
           card.appendChild(vid);
         }
-        card.addEventListener('click', event => {
-          if (
-            event.target.tagName === 'VIDEO' &&
-            event.target === card.querySelector('video')
-          ) {
-            return;
-          }
+
+        card.addEventListener('click', () => {
           document.querySelectorAll('.media-card video').forEach(v => v.pause());
-          const viewer = document.getElementById('fullscreenViewer');
-          const content = document.getElementById('fullscreenContent');
-          content.innerHTML = '';
-          if (m.type === 'image') {
-            const img2 = document.createElement('img');
-            img2.src = m.path;
-            img2.draggable = false;
-            content.appendChild(img2);
-          } else {
-            const vid2 = document.createElement('video');
-            vid2.src = m.path;
-            vid2.controls = true;
-            vid2.autoplay = true;
-            vid2.muted = false;
-            vid2.setAttribute('controlsList', 'nodownload');
-            vid2.playsInline = true;
-            content.appendChild(vid2);
-          }
-          viewer.style.display = 'flex';
+          openFullscreen(index);
         });
+
         container.appendChild(card);
       });
     }
 
-    function closeFullscreen() {
-      const v = document.querySelector('#fullscreenContent video');
-      if (v) v.pause();
-      document.getElementById('fullscreenViewer').style.display = 'none';
-    }
+    // Fullscreen functionality
+    let currentFullscreenIndex = 0;
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    function openFullscreen(index) {
+      currentFullscreenIndex = index;
+      const m = mediaItems[index];
+      const viewer = document.getElementById('fullscreenViewer');
+      const content = document.getElementById('fullscreenContent');
+      content.innerHTML = '';
+
+      if (m.type === 'image') {
+        const img = document.createElement('img');
+        img.src = m.path;
+        img.alt = '';
+        content.appendChild(img);
+      } else {
+        const vid = document.createElement('video');
+        vid.src = m.path;
+        vid.controls = true;
+        vid.autoplay = true;
+        vid.muted = false;
+        vid.setAttribute('controlsList', 'nodownload');
+        vid.playsInline = true;
+        content.appendChild(vid);
       }
+
+      viewer.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
     }
 
-    // START OVERLAY logic
-    const overlay = document.getElementById('startOverlay');
-    const music = document.getElementById('backgroundMusic');
-    let holdTimer = null;
-    let holdStart = 0;
-    let scroller;
+    function navigateFullscreen(direction) {
+      currentFullscreenIndex = (currentFullscreenIndex + direction + mediaItems.length) % mediaItems.length;
+      openFullscreen(currentFullscreenIndex);
+    }
 
+    function closeFullscreen() {
+      const viewer = document.getElementById('fullscreenViewer');
+      viewer.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    // Close fullscreen with ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeFullscreen();
+      }
+
+      // Arrow key navigation in fullscreen
+      if (document.getElementById('fullscreenViewer').style.display === 'flex') {
+        if (e.key === 'ArrowLeft') navigateFullscreen(-1);
+        if (e.key === 'ArrowRight') navigateFullscreen(1);
+      }
+    });
+
+    // Start overlay functionality
     function createRipple(x, y) {
-      const rect = overlay.getBoundingClientRect();
+      const rect = startOverlay.getBoundingClientRect();
       const size = Math.max(rect.width, rect.height);
       const ripple = document.createElement('span');
       ripple.className = 'ripple';
       ripple.style.width = ripple.style.height = `${size}px`;
       ripple.style.left = `${x - rect.left - size / 2}px`;
       ripple.style.top = `${y - rect.top - size / 2}px`;
-      overlay.appendChild(ripple);
+      startOverlay.appendChild(ripple);
       ripple.addEventListener('animationend', () => ripple.remove());
     }
 
-    async function doStart() {
-      await fetchPublicMedia();
-      scroller = new AutoScroller({
-        speedPxPerSec: 150,
-        idleDelay: 2500,
-        reverseAtBounds: true,
-        keyboardControls: true
-      });
-      createAutoScrollControls(scroller);
-      overlay.remove();
+    function startGallery() {
+      startOverlay.style.display = 'none';
+      initGallery();
       music.play().catch(() => { });
-      scroller._onUserInteract();
     }
 
-    function onPressStart(e) {
-      e.preventDefault();
-      holdStart = Date.now();
-      holdTimer = setTimeout(doStart, 10000);
-      const x = e.touches ? e.touches[0].clientX : e.clientX;
-      const y = e.touches ? e.touches[0].clientY : e.clientY;
-      createRipple(x, y);
-    }
+    localStorage.removeItem('gallerySpeed');
 
-    function onPressEnd() {
-      clearTimeout(holdTimer);
-      if (Date.now() - holdStart < 10000) doStart();
-    }
-
-    overlay.addEventListener('mousedown', onPressStart, { passive: false });
-    overlay.addEventListener('touchstart', onPressStart, { passive: false });
-    overlay.addEventListener('mouseup', onPressEnd);
-    overlay.addEventListener('touchend', onPressEnd);
+    startOverlay.addEventListener('click', (e) => {
+      createRipple(e.clientX, e.clientY);
+      setTimeout(startGallery, 500);
+    });
   </script>
 </body>
 
