@@ -821,7 +821,12 @@ async function fetchPublicMedia() {
         requestAnimationFrame(this._autoScrollFrame.bind(this));
       }
     }
-
+function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
     // DOM elements
     const speedControl = document.getElementById('speedControl');
     const speedValue = document.getElementById('speedValue');
@@ -829,8 +834,8 @@ async function fetchPublicMedia() {
     const startOverlay = document.getElementById('startOverlay');
 
     // Initialize gallery
-    function initGallery() {
-      loadMediaGallery();
+    async function initGallery() {
+      await fetchPublicMedia();
 
       // Set music source
       music.src = 'media/background.mp3';
@@ -868,43 +873,6 @@ async function fetchPublicMedia() {
       });
     }
 
-    // Load media gallery
-    function loadMediaGallery() {
-      const container = document.getElementById('publicContent');
-      container.innerHTML = '';
-
-      mediaItems.forEach((m, index) => {
-        const card = document.createElement('div');
-        card.className = 'media-card';
-        card.style.animationDelay = `${index * 0.1}s`;
-
-        if (m.type === 'image') {
-          const img = document.createElement('img');
-          img.src = m.path;
-          img.alt = '';
-          img.loading = 'lazy';
-          card.appendChild(img);
-        } else {
-          const vid = document.createElement('video');
-          vid.muted = true;
-          vid.controls = true;
-          vid.setAttribute('controlsList', 'nodownload');
-          vid.playsInline = true;
-          const src = document.createElement('source');
-          src.src = m.path;
-          src.type = 'video/mp4';
-          vid.appendChild(src);
-          card.appendChild(vid);
-        }
-
-        card.addEventListener('click', () => {
-          document.querySelectorAll('.media-card video').forEach(v => v.pause());
-          openFullscreen(index);
-        });
-
-        container.appendChild(card);
-      });
-    }
 
     // Fullscreen functionality
     let currentFullscreenIndex = 0;
