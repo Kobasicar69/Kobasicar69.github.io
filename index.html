@@ -578,12 +578,30 @@
           this.floatPos += this.dir * speed * dt;
 
           const maxScroll = document.body.scrollHeight - window.innerHeight;
+          let directionChanged = false;
           if (this.floatPos >= maxScroll) {
             this.floatPos = maxScroll;
-            if (this.reverseAtBounds) this.dir = -1;
+            if (this.reverseAtBounds) {
+              // CALL CALLBACK ONLY WHEN DIRECTION ACTUALLY CHANGES
+              if (this.dir !== -1) {
+                this.dir = -1;
+                directionChanged = true;
+              }
+            }
           } else if (this.floatPos <= 0) {
             this.floatPos = 0;
-            if (this.reverseAtBounds) this.dir = 1;
+            if (this.reverseAtBounds) {
+              // CALL CALLBACK ONLY WHEN DIRECTION ACTUALLY CHANGES
+              if (this.dir !== 1) {
+                this.dir = 1;
+                directionChanged = true;
+              }
+            }
+          }
+
+          // ADDED THIS CALL WHEN DIRECTION CHANGES AT BOUNDARIES
+          if (directionChanged) {
+            this.onDirectionChange?.(this.dir);
           }
 
           this._setScrollPos(this.floatPos);
