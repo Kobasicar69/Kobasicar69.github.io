@@ -277,7 +277,6 @@
     /* Control panel */
     .controls-container {
       display: flex;
-      flex-wrap: wrap;  
       align-items: center;
       gap: 1.2rem;
     }
@@ -285,8 +284,6 @@
     .control-group {
       display: flex;
       align-items: center;
-      flex: 1 1 120px;           /* <-- can shrink down to 120px wide */
-      min-width: 120px;  
       gap: 8px;
       background: rgba(255, 255, 255, 0.1);
       padding: 8px 15px;
@@ -488,8 +485,6 @@
       background: rgba(255, 255, 255, 0.15);
       padding: 4px 8px;
       border-radius: 12px;
-      white-space: normal;       /* allow multi‑line if really needed */
-      word-break: break-word;
       font-size: 0.9rem;
       min-width: 90px;
       text-align: center;
@@ -996,6 +991,8 @@
       initGallery();
       music.play().catch(() => { });
     }
+
+    localStorage.removeItem('gallerySpeed');
 
     startOverlay.addEventListener('click', (e) => {
       createRipple(e.clientX, e.clientY);
