@@ -14,6 +14,9 @@
       padding: 0;
       box-sizing: border-box;
       font-family: "Montserrat", sans-serif;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-user-drag: none;
     }
 
     :root {
@@ -35,6 +38,7 @@
       min-height: 100vh;
       overflow-x: hidden;
       position: relative;
+      touch-action: pan-y;
     }
 
     body::before {
@@ -135,6 +139,23 @@
       /* Red border transition */
       border: 2px solid transparent;
       box-sizing: border-box;
+    }
+
+    .media-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1;
+    }
+
+    .media-card:hover::after {
+      opacity: 1;
     }
 
     @keyframes cardAppear {
@@ -459,6 +480,18 @@
       pointer-events: none;
     }
 
+    /* Mobile speed visibility */
+    .speed-display {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      min-width: 90px;
+      text-align: center;
+      font-weight: 500;
+      border: 1px solid rgba(255, 76, 76, 0.3);
+    }
+
     /* Responsive */
     @media (max-width: 900px) {
       .header {
@@ -513,6 +546,11 @@
       .control-group {
         gap: 5px;
       }
+      
+      .speed-display {
+        min-width: 70px;
+        font-size: 0.85rem;
+      }
     }
   </style>
 </head>
@@ -547,7 +585,7 @@
       <div class="control-group">
         <span>Брзина:</span>
         <input type="range" id="speedControl" min="50" max="500" value="150">
-        <span id="speedValue">150px/s</span>
+        <div id="speedValue" class="speed-display">150px/s</div>
       </div>
     </div>
   </header>
@@ -579,9 +617,13 @@
   <audio id="backgroundMusic" loop></audio>
 
   <script>
+    // Global variables
+    let list = null;
+    let currentFullscreenIndex = 0;
+    let scroller;
+
     // Media data - replace with your actual media files
-async function fetchPublicMedia() {
-      let list = null;
+    async function fetchPublicMedia() {
       try {
         const res = await fetch('media/manifest.json');
         if (res.ok) {
@@ -597,13 +639,17 @@ async function fetchPublicMedia() {
       shuffle(list);
       const container = document.getElementById('publicContent');
       container.innerHTML = '';
-      list.forEach(m => {
+      
+      list.forEach((m, index) => {
         const card = document.createElement('div');
         card.className = 'media-card';
+        card.dataset.index = index;
+        
         if (m.type === 'image') {
           const img = document.createElement('img');
           img.src = m.path;
           img.draggable = false;
+          img.oncontextmenu = () => false;
           card.appendChild(img);
         } else {
           const vid = document.createElement('video');
@@ -611,12 +657,14 @@ async function fetchPublicMedia() {
           vid.controls = true;
           vid.setAttribute('controlsList', 'nodownload');
           vid.playsInline = true;
+          vid.oncontextmenu = () => false;
           const src = document.createElement('source');
           src.src = m.path;
           src.type = 'video/mp4';
           vid.appendChild(src);
           card.appendChild(vid);
         }
+        
         card.addEventListener('click', event => {
           if (
             event.target.tagName === 'VIDEO' &&
@@ -624,31 +672,22 @@ async function fetchPublicMedia() {
           ) {
             return;
           }
+          
           document.querySelectorAll('.media-card video').forEach(v => v.pause());
-          const viewer = document.getElementById('fullscreenViewer');
-          const content = document.getElementById('fullscreenContent');
-          content.innerHTML = '';
-          if (m.type === 'image') {
-            const img2 = document.createElement('img');
-            img2.src = m.path;
-            img2.draggable = false;
-            content.appendChild(img2);
-          } else {
-            const vid2 = document.createElement('video');
-            vid2.src = m.path;
-            vid2.controls = true;
-            vid2.autoplay = true;
-            vid2.muted = false;
-            vid2.setAttribute('controlsList', 'nodownload');
-            vid2.playsInline = true;
-            content.appendChild(vid2);
-          }
-          viewer.style.display = 'flex';
+          currentFullscreenIndex = parseInt(card.dataset.index);
+          openFullscreen();
         });
+        
         container.appendChild(card);
       });
     }
 
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
 
     // Enhanced AutoScroller class
     class AutoScroller {
@@ -674,6 +713,7 @@ async function fetchPublicMedia() {
         this.isEnabled = this.opts.enabled;
 
         this._initListeners();
+        this._onUserInteract(); // Start immediately
         requestAnimationFrame(this._autoScrollFrame.bind(this));
       }
 
@@ -821,12 +861,7 @@ async function fetchPublicMedia() {
         requestAnimationFrame(this._autoScrollFrame.bind(this));
       }
     }
-function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
+
     // DOM elements
     const speedControl = document.getElementById('speedControl');
     const speedValue = document.getElementById('speedValue');
@@ -837,11 +872,11 @@ function shuffle(array) {
     async function initGallery() {
       await fetchPublicMedia();
 
-      // Set music source
+      // Set music source (mock)
       music.src = 'media/background.mp3';
 
       // Initialize auto-scroller
-      const scroller = new AutoScroller({
+      scroller = new AutoScroller({
         speedPxPerSec: 150,
         idleDelay: 2500,
         reverseAtBounds: true,
@@ -871,15 +906,19 @@ function shuffle(array) {
       document.getElementById('toggleScroll').addEventListener('click', () => {
         scroller.toggleEnabled();
       });
+      
+      // Disable right-click and image dragging
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('dragstart', e => {
+        if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+          e.preventDefault();
+        }
+      });
     }
 
-
     // Fullscreen functionality
-    let currentFullscreenIndex = 0;
-
-    function openFullscreen(index) {
-      currentFullscreenIndex = index;
-      const m = mediaItems[index];
+    function openFullscreen() {
+      const m = list[currentFullscreenIndex];
       const viewer = document.getElementById('fullscreenViewer');
       const content = document.getElementById('fullscreenContent');
       content.innerHTML = '';
@@ -887,7 +926,8 @@ function shuffle(array) {
       if (m.type === 'image') {
         const img = document.createElement('img');
         img.src = m.path;
-        img.alt = '';
+        img.draggable = false;
+        img.oncontextmenu = () => false;
         content.appendChild(img);
       } else {
         const vid = document.createElement('video');
@@ -897,6 +937,7 @@ function shuffle(array) {
         vid.muted = false;
         vid.setAttribute('controlsList', 'nodownload');
         vid.playsInline = true;
+        vid.oncontextmenu = () => false;
         content.appendChild(vid);
       }
 
@@ -905,14 +946,18 @@ function shuffle(array) {
     }
 
     function navigateFullscreen(direction) {
-      currentFullscreenIndex = (currentFullscreenIndex + direction + mediaItems.length) % mediaItems.length;
-      openFullscreen(currentFullscreenIndex);
+      currentFullscreenIndex = (currentFullscreenIndex + direction + list.length) % list.length;
+      openFullscreen();
     }
 
     function closeFullscreen() {
       const viewer = document.getElementById('fullscreenViewer');
       viewer.style.display = 'none';
       document.body.style.overflow = 'auto';
+      
+      // Pause any playing video in fullscreen
+      const video = document.querySelector('#fullscreenContent video');
+      if (video) video.pause();
     }
 
     // Close fullscreen with ESC
@@ -946,8 +991,6 @@ function shuffle(array) {
       initGallery();
       music.play().catch(() => { });
     }
-
-    localStorage.removeItem('gallerySpeed');
 
     startOverlay.addEventListener('click', (e) => {
       createRipple(e.clientX, e.clientY);
