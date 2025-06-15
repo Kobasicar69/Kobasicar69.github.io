@@ -31,7 +31,11 @@
       --card-size: min(300px, 90vw);
       --header-height: 70px;
     }
-
+    
+   html, body {
+     overscroll-behavior: none; /* sprečava bounce/overscroll efekat */
+   }
+    
     body {
       background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
       color: var(--text);
@@ -614,7 +618,7 @@
   </div>
 
   <!-- Audio -->
-  <audio id="backgroundMusic" loop></audio>
+  <audio id="backgroundMusic" loop preload="auto"></audio>
 
   <script>
     // Global variables
