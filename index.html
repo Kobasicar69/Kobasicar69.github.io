@@ -31,13 +31,7 @@
       --card-size: min(300px, 90vw);
       --header-height: 70px;
     }
-    
-   html, body {
-  overscroll-behavior: none;
-  scroll-behavior: auto;
-}
 
-    
     body {
       background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
       color: var(--text);
@@ -560,7 +554,6 @@
     }
   </style>
 </head>
-
 <body>
   <!-- Progress bar -->
   <div id="progressBarContainer">
@@ -620,7 +613,7 @@
   </div>
 
   <!-- Audio -->
-  <audio id="backgroundMusic" loop preload="auto"></audio>
+  <audio id="backgroundMusic" loop></audio>
 
   <script>
     // Global variables
@@ -829,65 +822,44 @@
             '<i class="fas fa-play"></i><span>Покрени</span>';
       }
 
-_autoScrollFrame(timestamp) {
-  if (this.lastFrameTimestamp === null) this.lastFrameTimestamp = timestamp;
-  const dt_raw = timestamp - this.lastFrameTimestamp;
-  const dt = dt_raw / 1000;
-  this.lastFrameTimestamp = timestamp;
+      _autoScrollFrame(timestamp) {
+        if (this.isAutoScrolling) {
+          if (this.lastFrameTimestamp === null) this.lastFrameTimestamp = timestamp;
+          const dt = (timestamp - this.lastFrameTimestamp) / 1000;
+          this.lastFrameTimestamp = timestamp;
 
-  if (this.isAutoScrolling) {
-    // Izračun delta pomaka
-    let speed = this.dir > 0 ? this.opts.speedPxPerSec.down : this.opts.speedPxPerSec.up;
-    let delta = this.dir * speed * dt;
-    // Forsiramo minimalni pomak 1px/frame da izbegnemo sub-pixel stalling
-    if (Math.abs(delta) < 1) delta = this.dir * 1;
+          const speed = this.dir > 0 ?
+            this.opts.speedPxPerSec.down :
+            this.opts.speedPxPerSec.up;
 
-    let newPos = this.floatPos + delta;
-    const maxScroll = document.body.scrollHeight - window.innerHeight;
-    let directionChanged = false;
+          this.floatPos += this.dir * speed * dt;
 
-    if (newPos > maxScroll) {
-      const overshoot = newPos - maxScroll;
-      if (this.opts.reverseAtBounds && this.dir !== -1) {
-        this.dir = -1;
-        directionChanged = true;
-        // Primeni overshoot u suprotnom smeru i forsiraj minimalni pomak
-        newPos = maxScroll - overshoot;
-        if (maxScroll - newPos < 1) {
-          newPos = maxScroll - 1;
+          const maxScroll = document.body.scrollHeight - window.innerHeight;
+          let directionChanged = false;
+
+          if (this.floatPos >= maxScroll) {
+            this.floatPos = maxScroll;
+            if (this.opts.reverseAtBounds && this.dir !== -1) {
+              this.dir = -1;
+              directionChanged = true;
+            }
+          } else if (this.floatPos <= 0) {
+            this.floatPos = 0;
+            if (this.opts.reverseAtBounds && this.dir !== 1) {
+              this.dir = 1;
+              directionChanged = true;
+            }
+          }
+
+          if (directionChanged) {
+            this._onDirectionChange();
+          }
+
+          this._setScrollPos(this.floatPos);
         }
-      } else {
-        newPos = maxScroll;
-      }
-    } else if (newPos < 0) {
-      const overshoot = -newPos;
-      if (this.opts.reverseAtBounds && this.dir !== 1) {
-        this.dir = 1;
-        directionChanged = true;
-        newPos = overshoot;
-        if (newPos < 1) {
-          newPos = 1;
-        }
-      } else {
-        newPos = 0;
+        requestAnimationFrame(this._autoScrollFrame.bind(this));
       }
     }
-
-    this.floatPos = newPos;
-
-    if (directionChanged) {
-      this._onDirectionChange();
-      // lastFrameTimestamp je već postavljen na timestamp, dt u sledećem frame ostaje mali
-    }
-
-    // Momentalni scroll bez glatkog efekta, sa round-ovanjem
-    window.scrollTo(0, Math.round(this.floatPos));
-    // Ako koristiš _setScrollPos:
-    // this._setScrollPos(Math.round(this.floatPos));
-  }
-  requestAnimationFrame(this._autoScrollFrame.bind(this));
-}
-      
 
     // DOM elements
     const speedControl = document.getElementById('speedControl');
